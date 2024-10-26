@@ -1,21 +1,6 @@
 import pygame, sys
+from packages.menubuttons import Buttons
 pygame.init()
-
-class Buttons:
-    def __init__(self, text, width, height, pos):
-        #top rectangle
-        self.top_rect = pygame.Rect(pos, (width, height))
-        self.top_color = '#497dd9'
-
-        #text
-        self.text_surface = Gui_font.render(text, True, '#FFFFFF')
-        self.text_rect = self.text_surface.get_rect(center = self.top_rect.center)
-
-    #draw
-    def draw(self):
-        pygame.draw.rect(screen, self.top_color, self.top_rect)
-        screen.blit(self.text_surface, self.text_rect)
-
 
 screen = pygame.display.set_mode((1000, 600)) #Setting up the window
 clock = pygame.time.Clock() #Setting up the clock
@@ -37,7 +22,7 @@ def game_menu():
         screen.fill((0, 0, 0)) #Filling the screen with background color black
         screen.blit(image_bg, (0, 0)) #Placing the image into the screen
 
-        button1.draw()
+        button1.draw(screen)
         
         
         pygame.display.update() #Updating the display
