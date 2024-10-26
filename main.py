@@ -36,9 +36,11 @@ def game_menu():
         #Image rendering
         screen.fill((0, 0, 0)) #Filling the screen with background color black
         screen.blit(image_bg, (0, 0)) #Placing the image into the screen
-        button1.draw()
-        pygame.display.update() #Updating the display
 
+        button1.draw()
+        
+        
+        pygame.display.update() #Updating the display
         clock.tick(FPS) #Set the tick to the FPS
 
 
