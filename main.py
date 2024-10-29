@@ -2,7 +2,7 @@ import pygame, sys
 from packages.menubuttons import Buttons
 pygame.init()
 
-screen = pygame.display.set_mode((1000, 600)) #Setting up the window
+screen = pygame.display.set_mode((1000, 600)) #Setting up the window (Width, height)
 clock = pygame.time.Clock() #Setting up the clock
 FPS = 60 #Initialize the FPS
 Gui_font = pygame.font.Font(None, 30) #Changing the font size (The first argument is on the font-type)
@@ -22,6 +22,7 @@ def game_menu():
         screen.fill((0, 0, 0)) #Filling the screen with background color black
         screen.blit(image_bg, (0, 0)) #Placing the image into the screen
 
+        #Draw the button
         button1.draw(screen)
         
         
