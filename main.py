@@ -29,6 +29,7 @@ def game_menu():
         clock.tick(FPS) #Set the tick to the FPS
 
 
+#Start the game menu
 game_menu()
 pygame.quit()
 sys.exit()
