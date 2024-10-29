@@ -10,7 +10,7 @@ Gui_font = pygame.font.Font(None, 30) #Changing the font size (The first argumen
 button1 = Buttons('Start', 200, 40, (400, 200))
 
 def game_menu():
-    image_bg = pygame.image.load("background.jpg") #Loading up the image from the folder
+    image_bg = pygame.image.load("blits/background.jpg") #Loading up the image from the folder
     image_bg = pygame.transform.scale(image_bg, (1000, 600)) #Scaling the image into the same as the window (Since this is a background img)
     
     while True: #Game loop
@@ -33,3 +33,6 @@ def game_menu():
 game_menu()
 pygame.quit()
 sys.exit()
+
+
+
