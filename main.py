@@ -3,9 +3,9 @@ from packages.menubuttons import Buttons
 from packages.title import Title
 pygame.init()
 
-screen = pygame.display.set_mode((1000, 600)) #Setting up the window (Width, height)
-clock = pygame.time.Clock() #Setting up the clock
-FPS = 60 #Initialize the FPS
+screen = pygame.display.set_mode((1000, 600)) # Setting up the window (Width, height)
+clock = pygame.time.Clock() # Setting up the clock
+FPS = 60 # Initialize the FPS
 
 image_bg = pygame.image.load("sprites/background.jpg")
 image_bg = pygame.transform.scale(image_bg, (1000, 600))
@@ -38,35 +38,23 @@ def game_menu():
         # Rendering
         screen.fill((0, 0, 0))
         screen.blit(image_bg, (0, 0))
-
         title_text.render_title(screen)
 
-        # Check and render each button with hover effect
-        if start_button.mouse_hover(mouse_pos):
-            start_button.font.set_underline(True) # Underline effect on hover
-            start_button.render_text(screen, (173, 7, 255))  # Red when hovered
-        else:
-            start_button.font.set_underline(False)
-            start_button.render_text(screen)  # Defaults to white
-
-        # Options button color based on hover
-        if options_button.mouse_hover(mouse_pos):
-            options_button.font.set_underline(True)
-            options_button.render_text(screen, (173, 7, 255))  # Red when hovered
-        else:
-            options_button.font.set_underline(False)
-            options_button.render_text(screen)  # Defaults to white
-
-        # Quit button color based on hover
-        if quit_button.mouse_hover(mouse_pos):
-            quit_button.font.set_underline(True)
-            quit_button.render_text(screen, (173, 7, 255))  # Red when hovered
-        else:
-            quit_button.font.set_underline(False)
-            quit_button.render_text(screen)  # Defaults to white
+        mouse_hover_checker(start_button, mouse_pos)
+        mouse_hover_checker(options_button, mouse_pos)
+        mouse_hover_checker(quit_button, mouse_pos)
 
         pygame.display.flip()
         clock.tick(FPS)
+        
+def mouse_hover_checker(button_type, mouse_pos):
+# Check and render each button with hover effect
+    if button_type.mouse_hover(mouse_pos):
+        button_type.font.set_underline(True) # Underline effect on hover
+        button_type.render_text(screen, (173, 7, 255))  # Red when hovered
+    else:
+        button_type.font.set_underline(False)
+        button_type.render_text(screen)  # Defaults to white
 
 def main_game():
     while True:
@@ -91,7 +79,6 @@ def options():
 
         pygame.display.flip()
         clock.tick(FPS)
-
 
 
 #Start the game menu
