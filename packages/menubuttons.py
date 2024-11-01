@@ -1,8 +1,6 @@
 import pygame
 pygame.init()
 
-import pygame
-
 class Buttons:
     def __init__(self, pos_x, pos_y, text, font):
         self.pos_x = pos_x

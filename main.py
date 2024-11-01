@@ -58,12 +58,14 @@ def mouse_hover_checker(button_type, mouse_pos):
 
 def main_game():
     while True:
+        screen.fill((0, 0, 0))
+        screen.blit(image_bg, (0, 0))
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
             
-        screen.fill((0, 0, 0))
-        screen.blit(image_bg, (0, 0))
+
 
         pygame.display.flip()
         clock.tick(FPS)
