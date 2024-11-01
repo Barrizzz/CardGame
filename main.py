@@ -16,27 +16,57 @@ options_button = Buttons(500, 370, "Options", font)
 quit_button = Buttons(500, 440, "Quit", font)
 
 def game_menu():
-    image_bg = pygame.image.load("sprites/background.jpg") #Loading up the image from the folder
-    image_bg = pygame.transform.scale(image_bg, (1000, 600)) #Scaling the image into the same as the window (Since this is a background img)
-    
-    while True: #Game loop
-        for event in pygame.event.get(): #Event handler loop (Continously checking inputs from the player)
-            if event.type == pygame.QUIT: #End the function when the player click the exit button
-                return
-            
+    image_bg = pygame.image.load("sprites/background.jpg")
+    image_bg = pygame.transform.scale(image_bg, (1000, 600))
 
-        #Image rendering
-        screen.fill((0, 0, 0)) #Filling the screen with background color black
-        screen.blit(image_bg, (0, 0)) #Placing the image into the screen
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if start_button.mouse_hover(event.pos):
+                    print("start")
+                elif options_button.mouse_hover(event.pos):
+                    print("options")
+                elif quit_button.mouse_hover(event.pos):
+                    print("quit")
+
+        # Get the current mouse position
+        mouse_pos = pygame.mouse.get_pos()
+
+        # Rendering
+        screen.fill((0, 0, 0))
+        screen.blit(image_bg, (0, 0))
 
         title_text.render_title(screen)
-        start_button.render_text(screen)
-        options_button.render_text(screen)
-        quit_button.render_text(screen)
-    
 
-        pygame.display.flip() #Refreshes the screen
-        clock.tick(FPS) #Set the tick to the FPS
+        # Check and render each button with hover effect
+        if start_button.mouse_hover(mouse_pos):
+            start_button.font.set_underline(True) # Underline effect on hover
+            start_button.render_text(screen, (173, 7, 255))  # Red when hovered
+        else:
+            start_button.font.set_underline(False)
+            start_button.render_text(screen)  # Defaults to white
+
+        # Options button color based on hover
+        if options_button.mouse_hover(mouse_pos):
+            options_button.font.set_underline(True)
+            options_button.render_text(screen, (173, 7, 255))  # Red when hovered
+        else:
+            options_button.font.set_underline(False)
+            options_button.render_text(screen)  # Defaults to white
+
+        # Quit button color based on hover
+        if quit_button.mouse_hover(mouse_pos):
+            quit_button.font.set_underline(True)
+            quit_button.render_text(screen, (173, 7, 255))  # Red when hovered
+        else:
+            quit_button.font.set_underline(False)
+            quit_button.render_text(screen)  # Defaults to white
+
+        pygame.display.flip()
+        clock.tick(FPS)
+
 
 
 #Start the game menu
