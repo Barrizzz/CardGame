@@ -7,6 +7,9 @@ screen = pygame.display.set_mode((1000, 600)) #Setting up the window (Width, hei
 clock = pygame.time.Clock() #Setting up the clock
 FPS = 60 #Initialize the FPS
 
+image_bg = pygame.image.load("sprites/background.jpg")
+image_bg = pygame.transform.scale(image_bg, (1000, 600))
+
 title_font = pygame.font.Font("fonts/forward.ttf", 70)
 font = pygame.font.Font("fonts/eurostile.ttf", 40)
 
@@ -16,20 +19,18 @@ options_button = Buttons(500, 370, "Options", font)
 quit_button = Buttons(500, 440, "Quit", font)
 
 def game_menu():
-    image_bg = pygame.image.load("sprites/background.jpg")
-    image_bg = pygame.transform.scale(image_bg, (1000, 600))
-
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if start_button.mouse_hover(event.pos):
-                    print("start")
+                    main_game()
                 elif options_button.mouse_hover(event.pos):
-                    print("options")
+                    options()
                 elif quit_button.mouse_hover(event.pos):
-                    print("quit")
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        pygame.quit()
 
         # Get the current mouse position
         mouse_pos = pygame.mouse.get_pos()
@@ -63,6 +64,30 @@ def game_menu():
         else:
             quit_button.font.set_underline(False)
             quit_button.render_text(screen)  # Defaults to white
+
+        pygame.display.flip()
+        clock.tick(FPS)
+
+def main_game():
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            
+        screen.fill((0, 0, 0))
+        screen.blit(image_bg, (0, 0))
+
+        pygame.display.flip()
+        clock.tick(FPS)
+
+def options():
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            
+        screen.fill((0, 0, 0))
+        screen.blit(image_bg, (0, 0))
 
         pygame.display.flip()
         clock.tick(FPS)
