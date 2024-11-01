@@ -1,20 +1,29 @@
 import pygame
+pygame.init()
 
 class Buttons:
-    def __init__(self, text, width, height, pos):
-        # top rectangle
-        self.top_rect = pygame.Rect(pos, (width, height))
-        self.top_color = '#497dd9'
+    def __init__(self, pos_x, pos_y, text, font):
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.text = text
+        self.font = font
 
-        # bottom rectangle
-        self.bottom_rect = pygame.Rect(pos[0], pos[1] + height, width, height)
-        self.bottom_color = '#183c7a'
+    def render_text(self, surface):
+        # Shadow settings
+        shadow_padding = 14  # Padding around the text for the shadow
+        shadow_color = (50, 50, 50)  # Dark gray shadow color
 
-        # text
-        self.text_surface = pygame.font.Font(None, 30).render(text, True, '#FFFFFF')
-        self.text_rect = self.text_surface.get_rect(center=self.top_rect.center)
+        # Render the text surface
+        text_surface = self.font.render(self.text, True, (255, 255, 255))  # White color
+        text_rect = text_surface.get_rect()
+        text_rect.center = (self.pos_x, self.pos_y)
 
-    def draw(self, screen):
-        pygame.draw.rect(screen, self.top_color, self.top_rect)
-        pygame.draw.rect(screen, self.bottom_color, self.bottom_rect)
-        screen.blit(self.text_surface, self.text_rect)
+        # Create a shadow rectangle behind the text
+        shadow_rect = text_rect.copy()
+        shadow_rect.inflate_ip(shadow_padding, shadow_padding)  # Add padding to make it larger
+
+        # Draw the shadow rectangle behind the text
+        pygame.draw.rect(surface, shadow_color, shadow_rect, border_radius=5)  # Adjust `border_radius` for rounded corners
+
+        # Draw the main text at the centered position
+        surface.blit(text_surface, text_rect.topleft)
