@@ -7,13 +7,13 @@ screen = pygame.display.set_mode((1000, 600)) #Setting up the window (Width, hei
 clock = pygame.time.Clock() #Setting up the clock
 FPS = 60 #Initialize the FPS
 
-title_font = pygame.font.Font("fonts/eurostile.ttf", 90)
+title_font = pygame.font.Font("fonts/forward.ttf", 70)
 font = pygame.font.Font("fonts/eurostile.ttf", 40)
 
 title_text = Title(500, 150, "MATCH THE CARDS", title_font)
-start_button = Buttons(500, 270, "Start Game", font)
-options_button = Buttons(500, 340, "Options", font)
-quit_button = Buttons(500, 410, "Quit", font)
+start_button = Buttons(500, 300, "Start Game", font)
+options_button = Buttons(500, 370, "Options", font)
+quit_button = Buttons(500, 440, "Quit", font)
 
 def game_menu():
     image_bg = pygame.image.load("sprites/background.jpg") #Loading up the image from the folder
