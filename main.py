@@ -1,25 +1,40 @@
-import pygame, sys
+import pygame
+import sys
 from packages.menubuttons import Buttons
 from packages.title import Title
+
+# Initialize Pygame
 pygame.init()
 
-screen = pygame.display.set_mode((1000, 600)) # Setting up the window (Width, height)
-clock = pygame.time.Clock() # Setting up the clock
-FPS = 60 # Initialize the FPS
-width = 90
-height = 140
+# Setting up the display
+screen = pygame.display.set_mode((1000, 600))
+pygame.display.set_caption("Countdown Timer")
+clock = pygame.time.Clock()
+FPS = 60
 
+# Background Image
 image_bg = pygame.image.load("sprites/background.jpg")
 image_bg = pygame.transform.scale(image_bg, (1000, 600))
-card_back_deck = pygame.image.load("sprites/card_back_cyan.png")
-card_back_deck = pygame.transform.scale(card_back_deck, (width, height))
-card_back1 = pygame.transform.scale(card_back_deck, (width, height))
-card_back2 = pygame.transform.scale(card_back_deck, (width, height))
-card_back3 = pygame.transform.scale(card_back_deck, (width, height))
 
+# Card Back Image
+card_back_deck = pygame.image.load("sprites/card_back_cyan.png")
+card_back_deck = pygame.transform.scale(card_back_deck, (100, 150))
+
+# Create a list of card images
+card_list = [pygame.transform.scale(card_back_deck, (100, 150)) for _ in range(10)]
+
+# Target positions for the cards
+target_positions = [
+    (100, 150), (100, 370), (275, 150), (275, 370),
+    (450, 370), (625, 150), (625, 370), (800, 150),
+    (800, 370), (450, 150)
+]
+
+# Fonts
 title_font = pygame.font.Font("fonts/forward.ttf", 70)
 font = pygame.font.Font("fonts/eurostile.ttf", 40)
 
+# Title and Buttons
 title_text = Title(500, 150, "MATCH THE CARDS", title_font)
 start_button = Buttons(500, 300, "Start Game", font)
 options_button = Buttons(500, 370, "Options", font)
@@ -29,21 +44,18 @@ def game_menu():
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return
+                pygame.quit()
+                sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if start_button.mouse_hover(event.pos):
                     main_game()
                 elif options_button.mouse_hover(event.pos):
                     options()
                 elif quit_button.mouse_hover(event.pos):
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                        pygame.quit()
+                    pygame.quit()
+                    sys.exit()
 
-        # Get the current mouse position
         mouse_pos = pygame.mouse.get_pos()
-
-        # Rendering
-        screen.fill((0, 0, 0))
         screen.blit(image_bg, (0, 0))
         title_text.render_title(screen)
 
@@ -53,20 +65,57 @@ def game_menu():
 
         pygame.display.flip()
         clock.tick(FPS)
-        
-def mouse_hover_checker(button_type, mouse_pos):
-# Check and render each button with hover effect
-    if button_type.mouse_hover(mouse_pos):
-        button_type.font.set_underline(True) # Underline effect on hover
-        button_type.render_text(screen, (173, 7, 255))  # Red when hovered
+
+def mouse_hover_checker(button, mouse_pos):
+    if button.mouse_hover(mouse_pos):
+        button.font.set_underline(True)
+        button.render_text(screen, (173, 7, 255))
     else:
-        button_type.font.set_underline(False)
-        button_type.render_text(screen)  # Defaults to white
+        button.font.set_underline(False)
+        button.render_text(screen)
 
 def main_game():
-    card_pos = (441, 9)  # Initial x, y position of the card
-    target_pos = (100, 100)  # Target x, y position where the card should stop  
-    animation_speed = (20, 5)  # Animation speed for the card movement
+    # Draw the background once
+    screen.blit(image_bg, (0, 0))
+    pygame.display.flip()  # Update display
+
+    # Animation loop for cards
+    for idx, card in enumerate(card_list):
+        target_pos = target_positions[idx]
+        card_pos = [450, 0]  # Start position for the animation
+        animation_speed = [15, 15]  # Speed of the animation
+
+        while True:
+            # Render background (keep it persistent)
+            screen.blit(image_bg, (0, 0))
+
+            card_pos = card_animation(card_pos, target_pos, animation_speed)
+
+            # Draw all cards in their respective positions
+            for i, drawn_card in enumerate(card_list):
+                position = target_positions[i] if i < idx else (450, 0)
+                if i == idx:
+                    position = tuple(card_pos)  # Animate the current card
+                screen.blit(drawn_card, position)
+
+            pygame.display.flip()  # Update the display
+
+            # Check if the card has reached its target position
+            if card_pos[0] == target_pos[0] and card_pos[1] == target_pos[1]:
+                break  # Exit the loop for this card
+
+            clock.tick(FPS)  # Control the frame rate
+
+    # After animating all cards, start the countdown
+    countdown_timer()
+
+def countdown_timer():
+    countdown_time = 5
+    start_ticks = pygame.time.get_ticks()
+
+    # Load the ace of hearts image and resize it
+    ace_of_hearts = pygame.image.load("sprites/ace_of_hearts.jpg")
+    ace_of_hearts = pygame.transform.scale(ace_of_hearts, (100, 150))
 
     while True:
         for event in pygame.event.get():
@@ -74,75 +123,95 @@ def main_game():
                 pygame.quit()
                 sys.exit()
 
-        screen.fill((0, 0, 0))
-        screen.blit(image_bg, (0, 0))
-        screen.blit(card_back_deck, (450, 0))
-        
-        screen.blit(card_back1, (447, 3))
-        screen.blit(card_back2, (444, 6))
-        
-        # Update the position of the card with each frame
-        card_pos = card_animation(card_pos, target_pos, animation_speed)
-        screen.blit(card_back3, card_pos)
+        # Calculate remaining time
+        seconds_left = countdown_time - (pygame.time.get_ticks() - start_ticks) // 1000
+        if seconds_left < 0:
+            seconds_left = 0
 
-        pygame.display.flip()
-        clock.tick(FPS)
+        # Render background
+        screen.blit(image_bg, (0, 0))
+
+        # Determine if we are in the first second of the countdown
+        if seconds_left >= 0:  # This means we are in the first second
+            # Render all cards as Ace of Hearts
+            for idx in range(len(card_list)):
+                screen.blit(ace_of_hearts, target_positions[idx])  # Draw ace of hearts
+        else:
+            # Render all cards in their final positions
+            for idx, drawn_card in enumerate(card_list):
+                screen.blit(drawn_card, target_positions[idx])  # Draw the cards in final positions
+
+        # Render the countdown timer at the middle top
+        timer_text = font.render(str(seconds_left), True, (255, 255, 255))
+        timer_text_rect = timer_text.get_rect(center=(500, 50))  # Center at (500, 50)
+        screen.blit(timer_text, timer_text_rect)  # Draw the timer text
+
+        pygame.display.flip()  # Update the display
+
+        # Break the loop when countdown reaches zero
+        if seconds_left == 0:
+            break
+
+    # After the 10-second countdown is done, start a new 1-minute countdown
+    start_new_countdown()
+
+def start_new_countdown():
+    countdown_time = 60  # 1 minute countdown
+    start_ticks = pygame.time.get_ticks()
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        # Calculate remaining time
+        seconds_left = countdown_time - (pygame.time.get_ticks() - start_ticks) // 1000
+        if seconds_left < 0:
+            seconds_left = 0
+
+        # Render background
+        screen.blit(image_bg, (0, 0))
+
+        # Render all cards as card backs
+        for idx in range(len(card_list)):
+            screen.blit(card_back_deck, target_positions[idx])  # Draw card backs
+
+        # Render the countdown timer at the middle top
+        timer_text = font.render(str(seconds_left), True, (255, 255, 255))
+        timer_text_rect = timer_text.get_rect(center=(500, 50))  # Center at (500, 50)
+        screen.blit(timer_text, timer_text_rect)  # Draw the timer text
+
+        pygame.display.flip()  # Update the display
+
+        # Break the loop when countdown reaches zero
+        if seconds_left == 0:
+            break
 
 def card_animation(card_pos, target_pos, animation_speed):
-    # Find the delta_x and delta_y of the card (relative x,y distances)
     delta_x = target_pos[0] - card_pos[0]
     delta_y = target_pos[1] - card_pos[1]
 
-    # Snapping the card if it reaches the target_pos
-    if abs(delta_x) == 0 and abs(delta_y) == 0:
-        return target_pos
+    if abs(delta_x) < animation_speed[0] and abs(delta_y) < animation_speed[1]:
+        return list(target_pos)  # Return the target position when close enough
 
-    # Moving the card itself (This is pretty complicated)
-    ''' 
-    The min function is needed to determine whether the distance or the animation speed is smaller, 
-    then it takes the smaller value (this is how you "limit the amount of distance the card take") For example:
-    animation speed = 10; 
-    delta = 100;
-    
-    then the image cannot pass the 10px limit, therefore it takes the min() which is 10px
-
-    if it is already close to the target, we need to take the value of delta;
-    So that it will not overshoot, and it will be perfectly on target.
-
-    not that these assignment will be run every time the screen updates
-
-    the if and else statements are for determining the direction of movement.
-    '''
-    move_x = min(abs(delta_x), animation_speed[0]) * (1 if delta_x > 0 else -1) 
+    move_x = min(abs(delta_x), animation_speed[0]) * (1 if delta_x > 0 else -1)
     move_y = min(abs(delta_y), animation_speed[1]) * (1 if delta_y > 0 else -1)
 
-    # Update the card's position
-    card_x = card_pos[0]
-    card_y = card_pos[1]
-    card_x += move_x
-    card_y += move_y
-    card_pos = (card_x, card_y)
-
-    return (card_pos) # Return the updated position
-
+    return [card_pos[0] + move_x, card_pos[1] + move_y]  # Update the card's position
 
 def options():
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-            
+                sys.exit()
+
         screen.fill((0, 0, 0))
-        screen.blit(image_bg, (0, 0))
+        screen.blit(image_bg, (0, 0))  # Draw the background
 
         pygame.display.flip()
         clock.tick(FPS)
 
-
-#Start the game menu
+# Start the game menu
 game_menu()
-pygame.quit()
-sys.exit()
-
-
-
