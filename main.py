@@ -2,8 +2,6 @@ import pygame
 import sys
 from packages.menubuttons import Buttons
 from packages.title import Title
-
-# Initialize Pygame
 pygame.init()
 
 # Setting up the display
@@ -59,7 +57,7 @@ def game_menu():
         mouse_pos = pygame.mouse.get_pos()
         screen.blit(image_bg, (0, 0))
         title_text.render_title(screen)
-
+       
         mouse_hover_checker(start_button, mouse_pos)
         mouse_hover_checker(options_button, mouse_pos)
         mouse_hover_checker(quit_button, mouse_pos)
