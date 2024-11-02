@@ -33,6 +33,7 @@ target_positions = [
 # Fonts
 title_font = pygame.font.Font("fonts/forward.ttf", 70)
 font = pygame.font.Font("fonts/eurostile.ttf", 40)
+font_timer = pygame.font.Font("fonts/eurostile.ttf", 60)
 
 # Title and Buttons
 title_text = Title(500, 150, "MATCH THE CARDS", title_font)
@@ -142,8 +143,8 @@ def countdown_timer():
                 screen.blit(drawn_card, target_positions[idx])  # Draw the cards in final positions
 
         # Render the countdown timer at the middle top
-        timer_text = font.render(str(seconds_left), True, (255, 255, 255))
-        timer_text_rect = timer_text.get_rect(center=(500, 50))  # Center at (500, 50)
+        timer_text = font_timer.render(str(seconds_left), True, (255, 255, 255))
+        timer_text_rect = timer_text.get_rect(center=(500, 70))  # Center at (500, 50)
         screen.blit(timer_text, timer_text_rect)  # Draw the timer text
 
         pygame.display.flip()  # Update the display
@@ -178,8 +179,8 @@ def start_new_countdown():
             screen.blit(card_back_deck, target_positions[idx])  # Draw card backs
 
         # Render the countdown timer at the middle top
-        timer_text = font.render(str(seconds_left), True, (255, 255, 255))
-        timer_text_rect = timer_text.get_rect(center=(500, 50))  # Center at (500, 50)
+        timer_text = font_timer.render(str(seconds_left), True, (255, 255, 255))
+        timer_text_rect = timer_text.get_rect(center=(500, 70))  # Center at (500, 50)
         screen.blit(timer_text, timer_text_rect)  # Draw the timer text
 
         pygame.display.flip()  # Update the display
