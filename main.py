@@ -17,13 +17,6 @@ card_back1 = pygame.transform.scale(card_back_deck, (width, height))
 card_back2 = pygame.transform.scale(card_back_deck, (width, height))
 card_back3 = pygame.transform.scale(card_back_deck, (width, height))
 
-# Define initial positions
-card_pos = (441, 9) # Initial x, y position of the card
-target_pos = (100, 100)  # Target x, y position where the card should stop  
-animation_speed = (20, 5) # Animation speed for the card movement
-
-
-
 title_font = pygame.font.Font("fonts/forward.ttf", 70)
 font = pygame.font.Font("fonts/eurostile.ttf", 40)
 
@@ -71,12 +64,15 @@ def mouse_hover_checker(button_type, mouse_pos):
         button_type.render_text(screen)  # Defaults to white
 
 def main_game():
-    global card_pos
+    card_pos = (441, 9)  # Initial x, y position of the card
+    target_pos = (100, 100)  # Target x, y position where the card should stop  
+    animation_speed = (20, 5)  # Animation speed for the card movement
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+                sys.exit()
 
         screen.fill((0, 0, 0))
         screen.blit(image_bg, (0, 0))
@@ -84,33 +80,51 @@ def main_game():
         
         screen.blit(card_back1, (447, 3))
         screen.blit(card_back2, (444, 6))
-
-        # Card placing animation
-        card_x, card_y = card_pos  # Unpack current position
-        target_x, target_y = target_pos  # Unpack target position
-        animation_speed_x, animation_speed_y = animation_speed
-
-        # Move the card in the x direction
-        if card_x > target_x:  # Continue moving until it reaches the target x
-            card_x -= animation_speed_x  # Move left by animation_speed_x
-        # Move the card in the y direction
-        if card_y < target_y:  # Move down until it reaches the target y
-            card_y += animation_speed_y  # Move down by animation_speed_y
-        elif card_y > target_y:  # Move up if it's above target_y
-            card_y -= animation_speed_y  # Move up by animation_speed_y
-
-        # Prevent bouncing by snapping to target position
-        if target_x <= card_x <= target_x + animation_speed_x:
-            card_x = target_x  # Snap to target_x
-        if target_y <= card_y <= target_y + animation_speed_y:
-            card_y = target_y  # Snap to target_y
-
-        card_pos = (card_x, card_y)  # Update card_pos with new position
-        screen.blit(card_back3, card_pos)  # Draw the card at the new position
-
+        
+        # Update the position of the card with each frame
+        card_pos = card_animation(card_pos, target_pos, animation_speed)
+        screen.blit(card_back3, card_pos)
 
         pygame.display.flip()
         clock.tick(FPS)
+
+def card_animation(card_pos, target_pos, animation_speed):
+    # Find the delta_x and delta_y of the card (relative x,y distances)
+    delta_x = target_pos[0] - card_pos[0]
+    delta_y = target_pos[1] - card_pos[1]
+
+    # Snapping the card if it reaches the target_pos
+    if abs(delta_x) == 0 and abs(delta_y) == 0:
+        return target_pos
+
+    # Moving the card itself (This is pretty complicated)
+    ''' 
+    The min function is needed to determine whether the distance or the animation speed is smaller, 
+    then it takes the smaller value (this is how you "limit the amount of distance the card take") For example:
+    animation speed = 10; 
+    delta = 100;
+    
+    then the image cannot pass the 10px limit, therefore it takes the min() which is 10px
+
+    if it is already close to the target, we need to take the value of delta;
+    So that it will not overshoot, and it will be perfectly on target.
+
+    not that these assignment will be run every time the screen updates
+
+    the if and else statements are for determining the direction of movement.
+    '''
+    move_x = min(abs(delta_x), animation_speed[0]) * (1 if delta_x > 0 else -1) 
+    move_y = min(abs(delta_y), animation_speed[1]) * (1 if delta_y > 0 else -1)
+
+    # Update the card's position
+    card_x = card_pos[0]
+    card_y = card_pos[1]
+    card_x += move_x
+    card_y += move_y
+    card_pos = (card_x, card_y)
+
+    return (card_pos) # Return the updated position
+
 
 def options():
     while True:
