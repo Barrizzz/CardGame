@@ -2,6 +2,7 @@ import pygame
 import sys
 from packages.menubuttons import Buttons
 from packages.title import Title
+from packages.cardanimation import Cardanimation
 pygame.init()
 
 # Setting up the display
@@ -82,13 +83,16 @@ def main_game():
     for idx, card in enumerate(card_list):
         target_pos = target_positions[idx]
         card_pos = [450, 0]  # Start position for the animation
-        animation_speed = [15, 15]  # Speed of the animation
+        animation_speed = [20, 20]  # Speed of the animation
+
+        # Creating a class instance
+        card_animator = Cardanimation(card_pos, target_pos, animation_speed)
 
         while True:
             # Render background (keep it persistent)
             screen.blit(image_bg, (0, 0))
-
-            card_pos = card_animation(card_pos, target_pos, animation_speed)
+            # Calling the card_animation function from the Cardanimation
+            card_pos = card_animator.card_animation()
 
             # Draw all cards in their respective positions
             for i, drawn_card in enumerate(card_list):
@@ -109,7 +113,7 @@ def main_game():
     countdown_timer()
 
 def countdown_timer():
-    countdown_time = 5
+    countdown_time = 3
     start_ticks = pygame.time.get_ticks()
 
     # Load the ace of hearts image and resize it
@@ -133,12 +137,12 @@ def countdown_timer():
         # Determine if we are in the first second of the countdown
         if seconds_left >= 0:  # This means we are in the first second
             # Render all cards as Ace of Hearts
-            for idx in range(len(card_list)):
-                screen.blit(ace_of_hearts, target_positions[idx])  # Draw ace of hearts
+            for i in range(len(card_list)):
+                screen.blit(ace_of_hearts, target_positions[i])  # Draw ace of hearts
         else:
             # Render all cards in their final positions
-            for idx, drawn_card in enumerate(card_list):
-                screen.blit(drawn_card, target_positions[idx])  # Draw the cards in final positions
+            for i, card in enumerate(card_list):
+                screen.blit(card, target_positions[i])  # Draw the cards in final positions
 
         # Render the countdown timer at the middle top
         timer_text = font_timer.render(str(seconds_left), True, (255, 255, 255))
@@ -152,9 +156,9 @@ def countdown_timer():
             break
 
     # After the 10-second countdown is done, start a new 1-minute countdown
-    start_new_countdown()
+    start_main_countdown()
 
-def start_new_countdown():
+def start_main_countdown():
     countdown_time = 60  # 1 minute countdown
     start_ticks = pygame.time.get_ticks()
 
@@ -173,8 +177,8 @@ def start_new_countdown():
         screen.blit(image_bg, (0, 0))
 
         # Render all cards as card backs
-        for idx in range(len(card_list)):
-            screen.blit(card_back_deck, target_positions[idx])  # Draw card backs
+        for i in range(len(card_list)):
+            screen.blit(card_back_deck, target_positions[i])  # Draw card backs
 
         # Render the countdown timer at the middle top
         timer_text = font_timer.render(str(seconds_left), True, (255, 255, 255))
@@ -186,18 +190,6 @@ def start_new_countdown():
         # Break the loop when countdown reaches zero
         if seconds_left == 0:
             break
-
-def card_animation(card_pos, target_pos, animation_speed):
-    delta_x = target_pos[0] - card_pos[0]
-    delta_y = target_pos[1] - card_pos[1]
-
-    if abs(delta_x) < animation_speed[0] and abs(delta_y) < animation_speed[1]:
-        return list(target_pos)  # Return the target position when close enough
-
-    move_x = min(abs(delta_x), animation_speed[0]) * (1 if delta_x > 0 else -1)
-    move_y = min(abs(delta_y), animation_speed[1]) * (1 if delta_y > 0 else -1)
-
-    return [card_pos[0] + move_x, card_pos[1] + move_y]  # Update the card's position
 
 def options():
     while True:
