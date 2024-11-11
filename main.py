@@ -3,6 +3,7 @@ import sys
 from packages.menubuttons import Buttons
 from packages.title import Title
 from packages.cardanimation import Cardanimation
+from packages.card_randomizer import Card
 pygame.init()
 
 # Setting up the display
@@ -112,12 +113,27 @@ def main_game():
     # After animating all cards, start the countdown
     countdown_timer()
 
+
+# Work on this!!!
+def countdown_timer():
+    countdown_time = 3
+    start_ticks = pygame.time.get_ticks()
+
+    random_card = Card()
+    card_list = random_card.random_card_list  
+    for i in card_list:
+        card_image = "sprites/" + i
+        pygame.image.load(card_image)
+        pygame.transform.scale(card_image, (100, 150))
+
+    
+'''
 def countdown_timer():
     countdown_time = 3
     start_ticks = pygame.time.get_ticks()
 
     # Load the ace of hearts image and resize it
-    ace_of_hearts = pygame.image.load("sprites/ace_of_hearts.jpg")
+    ace_of_hearts = pygame.image.load("sprites/ace_of_hearts.png")
     ace_of_hearts = pygame.transform.scale(ace_of_hearts, (100, 150))
 
     while True:
@@ -157,6 +173,7 @@ def countdown_timer():
 
     # After the 10-second countdown is done, start a new 1-minute countdown
     start_main_countdown()
+'''
 
 def start_main_countdown():
     countdown_time = 60  # 1 minute countdown
