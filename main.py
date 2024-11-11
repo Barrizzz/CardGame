@@ -115,7 +115,7 @@ def start_game():
 
 # Work on this!!!
 def countdown_timer():
-    countdown_time = 3
+    countdown_time = 2 # Initial countdown for memorizing the cards
     start_ticks = pygame.time.get_ticks()
 
     random_card = Card()
@@ -124,7 +124,7 @@ def countdown_timer():
     # Make a list of the card_name (This is for the blit function)
     card_list_blit = []
     for card_name in card_name_list:
-        card_image_path = "sprites/" + card_name + ".png"
+        card_image_path = "sprites/cardface/" + card_name + ".png"
         card_image = pygame.image.load(card_image_path)
         card_image = pygame.transform.scale(card_image, (100, 150))
         card_list_blit.append(card_image)
@@ -141,9 +141,9 @@ def countdown_timer():
         # Calculate remaining time
         seconds_left = countdown_time - (pygame.time.get_ticks() - start_ticks) // 1000
         if seconds_left < 0: seconds_left = 0 
-
-        # Rendering the countdown timer
-        timer_text = font_timer.render(str(seconds_left), True, (255, 255, 255)) # The middle boolean is for antialiasing
+        
+        # Rendering the timer text
+        timer_text = font_timer.render('Memorize The Card!', True, (255, 255, 255)) # The middle boolean is for antialiasing
         timer_text_rect = timer_text.get_rect(center=(500, 70))  # Center at (500, 50)
         screen.blit(timer_text, timer_text_rect)  # Draw the timer text
 
