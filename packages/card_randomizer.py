@@ -4,8 +4,8 @@ pygame.init()
 
 class Card:
     def __init__(self):
-        self.cardList = ['queen_of_clubs.png', 'jack_of_diamonds.png', 'ace_of_spades.png', 'ace_of_hearts.png', '10_of_hearts.png', 
-                        'ace_of_spades.png', 'ace_of_hearts.png', '10_of_hearts.png', 'jack_of_diamonds.png', 'queen_of_clubs.png']
+        self.cardList = ['queen_of_clubs', 'jack_of_diamonds', 'ace_of_spades', 'ace_of_hearts', '10_of_hearts', 
+                        'ace_of_spades', 'ace_of_hearts', '10_of_hearts', 'jack_of_diamonds', 'queen_of_clubs']
         
         self.random_card_list = self.generate_random_card()
         

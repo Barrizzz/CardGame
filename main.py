@@ -120,50 +120,46 @@ def countdown_timer():
     start_ticks = pygame.time.get_ticks()
 
     random_card = Card()
-    card_list = random_card.random_card_list  
-    for i in card_list:
-        card_image = "sprites/" + i
-        pygame.image.load(card_image)
-        pygame.transform.scale(card_image, (100, 150))
-
+    card_name_list = random_card.random_card_list  
     
-'''
-def countdown_timer():
-    countdown_time = 3
-    start_ticks = pygame.time.get_ticks()
-
-    # Load the ace of hearts image and resize it
-    ace_of_hearts = pygame.image.load("sprites/ace_of_hearts.png")
-    ace_of_hearts = pygame.transform.scale(ace_of_hearts, (100, 150))
-
+    # Make a list of the card_name (This is for the blit function)
+    card_list_blit = []
+    for card_name in card_name_list:
+        card_image_path = "sprites/" + card_name + ".png"
+        card_image = pygame.image.load(card_image_path)
+        card_image = pygame.transform.scale(card_image, (100, 150))
+        card_list_blit.append(card_image)
+    
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
+        # Render background
+        screen.blit(image_bg, (0, 0))
+        
         # Calculate remaining time
         seconds_left = countdown_time - (pygame.time.get_ticks() - start_ticks) // 1000
         if seconds_left < 0:
             seconds_left = 0
 
-        # Render background
-        screen.blit(image_bg, (0, 0))
-
-        # Determine if we are in the first second of the countdown
-        if seconds_left >= 0:  # This means we are in the first second
-            # Render all cards as Ace of Hearts
-            for i in range(len(card_list)):
-                screen.blit(ace_of_hearts, target_positions[i])  # Draw ace of hearts
-        else:
-            # Render all cards in their final positions
-            for i, card in enumerate(card_list):
-                screen.blit(card, target_positions[i])  # Draw the cards in final positions
-
         # Render the countdown timer at the middle top
         timer_text = font_timer.render(str(seconds_left), True, (255, 255, 255))
         timer_text_rect = timer_text.get_rect(center=(500, 70))  # Center at (500, 50)
         screen.blit(timer_text, timer_text_rect)  # Draw the timer text
+
+        
+
+        # Determine if we are in the first second of the countdown
+        if seconds_left >= 0:  # This means we are in the first second
+            # Render all cards from the randomized card list (card_name_list)
+            for i, card in enumerate(card_list_blit):
+                screen.blit(card, target_positions[i])
+        else:
+            # Render all cards in their final positions
+            for i, card in enumerate(card_list_blit):
+                screen.blit(card, target_positions[i]) # Draw the cards in final positions
 
         pygame.display.flip()  # Update the display
 
@@ -173,10 +169,9 @@ def countdown_timer():
 
     # After the 10-second countdown is done, start a new 1-minute countdown
     start_main_countdown()
-'''
 
 def start_main_countdown():
-    countdown_time = 60  # 1 minute countdown
+    countdown_time = 20 # Main countdown
     start_ticks = pygame.time.get_ticks()
 
     while True:
