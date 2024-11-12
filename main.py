@@ -46,6 +46,7 @@ quit_button = Buttons(500, 440, "Quit", font)
 # Initialize card_list_blit once
 random_card = Card()
 card_name_list = random_card.random_card_list # This variable is important for card matching
+print(card_name_list)
 
 # Make a list of the card_name (This is for the blit function)
 card_list_blit = []
@@ -160,10 +161,11 @@ def start_main_countdown():
     # Accessing the class for opening the card faces
     open_card = Cardfaces(card_back_deck, card_list, card_list_blit, target_positions)
 
+    flipped_indices = []  # Track indices of flipped cards
+
     while True:
-        card_rects = open_card.get_card_rect() # Get the card rects
+        card_rects = open_card.get_card_rect()  # Get the card rects
         mouse_pos = pygame.mouse.get_pos()  # Update mouse position
-        card_flipped = 0
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -171,10 +173,26 @@ def start_main_countdown():
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 for i, rect in enumerate(card_rects):
-                    if rect.collidepoint(mouse_pos) and not open_card.flipped_cards[i]: # open_card.flipped_cards[i] is at first false, then it becomes true So the and not means that if mouse_pos is at the rectangle and the card is not flipped (not false), if open_card.flipped_cards[i] is true, not True = False, so it will not execute
+                    if rect.collidepoint(mouse_pos) and not open_card.flipped_cards[i]:
                         open_card.set_flipped_cards(i)
-                        print(i)
-                        card_flipped += 1
+                        flipped_indices.append(i)
+                        print(flipped_indices)
+
+                        if len(flipped_indices) == 2:
+                            index1 = flipped_indices[0]
+                            index2 = flipped_indices[1]
+
+                            if card_name_list[index1] == card_name_list[index2]:
+                                print("Card Matched!")
+                            else:
+                                print("Card Not Matched!")
+                                open_card.flipped_cards(index2) = True
+                                pygame.time.wait(1000)
+                                # Reset the flipped state if not matched
+                                open_card.flipped_cards[index1] = False
+                                open_card.flipped_cards[index2] = False
+
+                            flipped_indices.clear()  # Reset the list for the next pair
 
         # Calculate remaining time
         seconds_left = countdown_time - (pygame.time.get_ticks() - start_ticks) // 1000
@@ -185,11 +203,6 @@ def start_main_countdown():
 
         # Render all cards
         open_card.render_cards()
-
-        if card_flipped == 2:
-            ...
-                
-        
 
         # Render the countdown timer at the middle top
         timer_text = font_timer.render(str(seconds_left), True, (255, 255, 255))
