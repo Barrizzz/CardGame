@@ -42,22 +42,37 @@ start_button = Buttons(500, 300, "Start Game", font)
 options_button = Buttons(500, 370, "Options", font)
 quit_button = Buttons(500, 440, "Quit", font)
 
+# Mouse position
+mouse_pos = pygame.mouse.get_pos()
+
+# Initialize card_list_blit once
+random_card = Card()
+card_name_list = random_card.random_card_list  
+
+# Make a list of the card_name (This is for the blit function)
+card_list_blit = []
+for card_name in card_name_list:
+    card_image_path = "sprites/cardface/" + card_name + ".png"
+    card_image = pygame.image.load(card_image_path)
+    card_image = pygame.transform.scale(card_image, (100, 150))
+    card_list_blit.append(card_image)
+
 def game_menu():
     while True:
+        mouse_pos = pygame.mouse.get_pos()  # Update mouse position
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if start_button.mouse_hover(event.pos):
-                    start_game()
+                    start_animation()
                 elif options_button.mouse_hover(event.pos):
                     options()
                 elif quit_button.mouse_hover(event.pos):
                     pygame.quit()
                     sys.exit()
 
-        mouse_pos = pygame.mouse.get_pos()
         screen.blit(image_bg, (0, 0))
         title_text.render_title(screen)
        
@@ -68,15 +83,7 @@ def game_menu():
         pygame.display.flip()
         clock.tick(FPS)
 
-def mouse_hover_checker(button, mouse_pos):
-    if button.mouse_hover(mouse_pos):
-        button.font.set_underline(True)
-        button.render_text(screen, (173, 7, 255))
-    else:
-        button.font.set_underline(False)
-        button.render_text(screen)
-
-def start_game():
+def start_animation():
     # Draw the background once
     screen.blit(image_bg, (0, 0))
 
@@ -112,22 +119,9 @@ def start_game():
     # After animating all cards, start the countdown
     countdown_timer()
 
-
-# Work on this!!!
 def countdown_timer():
-    countdown_time = 2 # Initial countdown for memorizing the cards
+    countdown_time = 2  # Initial countdown for memorizing the cards
     start_ticks = pygame.time.get_ticks()
-
-    random_card = Card()
-    card_name_list = random_card.random_card_list  
-    
-    # Make a list of the card_name (This is for the blit function)
-    card_list_blit = []
-    for card_name in card_name_list:
-        card_image_path = "sprites/cardface/" + card_name + ".png"
-        card_image = pygame.image.load(card_image_path)
-        card_image = pygame.transform.scale(card_image, (100, 150))
-        card_list_blit.append(card_image)
     
     while True:
         for event in pygame.event.get():
@@ -143,12 +137,12 @@ def countdown_timer():
         if seconds_left < 0: seconds_left = 0 
         
         # Rendering the timer text
-        timer_text = font_timer.render('Memorize The Card!', True, (255, 255, 255)) # The middle boolean is for antialiasing
+        timer_text = font_timer.render('Memorize The Card!', True, (255, 255, 255))  # The middle boolean is for antialiasing
         timer_text_rect = timer_text.get_rect(center=(500, 70))  # Center at (500, 50)
         screen.blit(timer_text, timer_text_rect)  # Draw the timer text
 
         # Render the cards only if the countdown is not over
-        if seconds_left >= 0:  
+        if seconds_left > 0:  
             # Render all cards from the randomized card list (card_name_list)
             for i, card in enumerate(card_list_blit):
                 screen.blit(card, target_positions[i])
@@ -158,16 +152,15 @@ def countdown_timer():
 
         pygame.display.flip()  # Update the display
 
-        
-
     # Start the main countdown timer
-    start_main_countdown()
+    start_main_countdown(card_list_blit)
 
-def start_main_countdown():
-    countdown_time = 20 # Main countdown
+def start_main_countdown(card_list_blit):
+    countdown_time = 20  # Main countdown
     start_ticks = pygame.time.get_ticks()
 
     while True:
+        mouse_pos = pygame.mouse.get_pos()  # Update mouse position
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -192,6 +185,9 @@ def start_main_countdown():
         # Break the loop when countdown reaches zero
         if seconds_left == 0: break
 
+        # Check for mouse hover and render the card faces if hovered
+        mouse_hover_card(mouse_pos, card_list, card_back_deck, card_list_blit)
+
         pygame.display.flip()  # Update the display
 
 def options():
@@ -206,6 +202,25 @@ def options():
 
         pygame.display.flip()
         clock.tick(FPS)
+
+# Mouse hover checker and mouse actions
+def mouse_hover_checker(button, mouse_pos):
+    if button.mouse_hover(mouse_pos):
+        button.render_text(screen, (173, 7, 255))  # Change color to purple when hovered
+    else:
+        button.render_text(screen)
+    
+def mouse_hover_card(mouse_pos, card_list, card_back_deck, card_list_blit):
+    card_rects = []  # This is a new variable for getting the card rectangles
+    # Render all cards as card backs
+    for i in range(len(card_list)):
+        rect = screen.blit(card_back_deck, target_positions[i])  # Draw card backs
+        card_rects.append(rect)
+
+    # Check for mouse hover and render the card faces if hovered
+    for i, rect in enumerate(card_rects):
+        if rect.collidepoint(mouse_pos):
+            screen.blit(card_list_blit[i], target_positions[i])
 
 # Start the game menu
 game_menu()
