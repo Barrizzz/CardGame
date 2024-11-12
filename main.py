@@ -4,6 +4,7 @@ from packages.menubuttons import Buttons
 from packages.title import Title
 from packages.cardanimation import Cardanimation
 from packages.card_randomizer import Card
+from packages.showing_cards import Cardfaces
 pygame.init()
 
 # Setting up the display
@@ -42,12 +43,9 @@ start_button = Buttons(500, 300, "Start Game", font)
 options_button = Buttons(500, 370, "Options", font)
 quit_button = Buttons(500, 440, "Quit", font)
 
-# Mouse position
-mouse_pos = pygame.mouse.get_pos()
-
 # Initialize card_list_blit once
 random_card = Card()
-card_name_list = random_card.random_card_list  
+card_name_list = random_card.random_card_list # This variable is important for card matching
 
 # Make a list of the card_name (This is for the blit function)
 card_list_blit = []
@@ -60,16 +58,17 @@ for card_name in card_name_list:
 def game_menu():
     while True:
         mouse_pos = pygame.mouse.get_pos()  # Update mouse position
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if start_button.mouse_hover(event.pos):
+                if start_button.mouse_hover(mouse_pos):
                     start_animation()
-                elif options_button.mouse_hover(event.pos):
+                elif options_button.mouse_hover(mouse_pos):
                     options()
-                elif quit_button.mouse_hover(event.pos):
+                elif quit_button.mouse_hover(mouse_pos):
                     pygame.quit()
                     sys.exit()
 
@@ -153,18 +152,26 @@ def countdown_timer():
         pygame.display.flip()  # Update the display
 
     # Start the main countdown timer
-    start_main_countdown(card_list_blit)
+    start_main_countdown()
 
-def start_main_countdown(card_list_blit):
+def start_main_countdown():
     countdown_time = 20  # Main countdown
     start_ticks = pygame.time.get_ticks()
+    # Accessing the class for opening the card faces
+    open_card = Cardfaces(card_back_deck, card_list, card_list_blit, target_positions)
 
     while True:
+        card_rects = open_card.get_card_rect() # Get the card rects
         mouse_pos = pygame.mouse.get_pos()  # Update mouse position
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                for i, rect in enumerate(card_rects):
+                    if rect.collidepoint(mouse_pos) and not open_card.flipped_cards[i]: # open_card.flipped_cards[i] is at first false, then it becomes true So the and not means that if mouse_pos is at the rectangle and the card is not flipped (not false), if open_card.flipped_cards[i] is true, not True = False, so it will not execute
+                        open_card.set_flipped_cards(i)
 
         # Calculate remaining time
         seconds_left = countdown_time - (pygame.time.get_ticks() - start_ticks) // 1000
@@ -173,9 +180,8 @@ def start_main_countdown(card_list_blit):
         # Render background
         screen.blit(image_bg, (0, 0))
 
-        # Render all cards as card backs
-        for i in range(len(card_list)):
-            screen.blit(card_back_deck, target_positions[i])  # Draw card backs
+        # Render all cards
+        open_card.render_cards()
 
         # Render the countdown timer at the middle top
         timer_text = font_timer.render(str(seconds_left), True, (255, 255, 255))
@@ -184,9 +190,6 @@ def start_main_countdown(card_list_blit):
 
         # Break the loop when countdown reaches zero
         if seconds_left == 0: break
-
-        # Check for mouse hover and render the card faces if hovered
-        mouse_hover_card(mouse_pos, card_list, card_back_deck, card_list_blit)
 
         pygame.display.flip()  # Update the display
 
@@ -210,17 +213,5 @@ def mouse_hover_checker(button, mouse_pos):
     else:
         button.render_text(screen)
     
-def mouse_hover_card(mouse_pos, card_list, card_back_deck, card_list_blit):
-    card_rects = []  # This is a new variable for getting the card rectangles
-    # Render all cards as card backs
-    for i in range(len(card_list)):
-        rect = screen.blit(card_back_deck, target_positions[i])  # Draw card backs
-        card_rects.append(rect)
-
-    # Check for mouse hover and render the card faces if hovered
-    for i, rect in enumerate(card_rects):
-        if rect.collidepoint(mouse_pos):
-            screen.blit(card_list_blit[i], target_positions[i])
-
 # Start the game menu
 game_menu()
