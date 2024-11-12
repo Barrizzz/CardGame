@@ -162,6 +162,8 @@ def start_main_countdown():
     open_card = Cardfaces(card_back_deck, card_list, card_list_blit, target_positions)
 
     flipped_indices = []  # Track indices of flipped cards
+    turn_card_back = False  # Flag to indicate whether to turn back the cards after a match
+    turn_back_time = 0  # Time when cards should be turned back
 
     while True:
         card_rects = open_card.get_card_rect()  # Get the card rects
@@ -184,15 +186,18 @@ def start_main_countdown():
 
                             if card_name_list[index1] == card_name_list[index2]:
                                 print("Card Matched!")
+                                flipped_indices.clear()  # Reset the list for the next pair
                             else:
                                 print("Card Not Matched!")
-                                open_card.flipped_cards(index2) = True
-                                pygame.time.wait(1000)
-                                # Reset the flipped state if not matched
-                                open_card.flipped_cards[index1] = False
-                                open_card.flipped_cards[index2] = False
+                                turn_card_back = True
+                                # turn_back_time = pygame.time.get_ticks() + 1000  # Set the time to turn back cards
 
-                            flipped_indices.clear()  # Reset the list for the next pair
+        # Turn back non-matching cards after a delay
+        if turn_card_back: #and pygame.time.get_ticks() >= turn_back_time:
+            open_card.set_flipped_cards(flipped_indices[0], False)
+            open_card.set_flipped_cards(flipped_indices[1], False)
+            flipped_indices.clear()
+            turn_card_back = False
 
         # Calculate remaining time
         seconds_left = countdown_time - (pygame.time.get_ticks() - start_ticks) // 1000
