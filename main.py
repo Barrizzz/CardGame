@@ -163,7 +163,8 @@ def start_main_countdown():
     while True:
         card_rects = open_card.get_card_rect() # Get the card rects
         mouse_pos = pygame.mouse.get_pos()  # Update mouse position
-        
+        card_flipped = 0
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -172,6 +173,8 @@ def start_main_countdown():
                 for i, rect in enumerate(card_rects):
                     if rect.collidepoint(mouse_pos) and not open_card.flipped_cards[i]: # open_card.flipped_cards[i] is at first false, then it becomes true So the and not means that if mouse_pos is at the rectangle and the card is not flipped (not false), if open_card.flipped_cards[i] is true, not True = False, so it will not execute
                         open_card.set_flipped_cards(i)
+                        print(i)
+                        card_flipped += 1
 
         # Calculate remaining time
         seconds_left = countdown_time - (pygame.time.get_ticks() - start_ticks) // 1000
@@ -182,6 +185,11 @@ def start_main_countdown():
 
         # Render all cards
         open_card.render_cards()
+
+        if card_flipped == 2:
+            ...
+                
+        
 
         # Render the countdown timer at the middle top
         timer_text = font_timer.render(str(seconds_left), True, (255, 255, 255))
