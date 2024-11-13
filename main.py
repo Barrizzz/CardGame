@@ -156,7 +156,7 @@ def countdown_timer():
     start_main_countdown()
 
 def start_main_countdown():
-    countdown_time = 20  # Main countdown
+    countdown_time = 60 # Main countdown
     start_ticks = pygame.time.get_ticks()
     # Accessing the class for opening the card faces
     open_card = Cardfaces(card_back_deck, card_list, card_list_blit, target_positions)
@@ -190,10 +190,10 @@ def start_main_countdown():
                             else:
                                 print("Card Not Matched!")
                                 turn_card_back = True
-                                # turn_back_time = pygame.time.get_ticks() + 1000  # Set the time to turn back cards
+                                turn_back_time = pygame.time.get_ticks() + 1000  # Set the time to turn back cards
 
         # Turn back non-matching cards after a delay
-        if turn_card_back: #and pygame.time.get_ticks() >= turn_back_time:
+        if turn_card_back and pygame.time.get_ticks() >= turn_back_time:
             open_card.set_flipped_cards(flipped_indices[0], False)
             open_card.set_flipped_cards(flipped_indices[1], False)
             flipped_indices.clear()
