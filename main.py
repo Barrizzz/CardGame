@@ -3,7 +3,7 @@ import sys
 from packages.menubuttons import Buttons
 from packages.title import Title
 from packages.cardanimation import Cardanimation
-from packages.card_randomizer import Card
+from packages.card_randomizer import Cardrandomize
 from packages.showing_cards import Cardfaces
 pygame.init()
 
@@ -85,9 +85,9 @@ def create_random_cards():
     random_card_list_blit.clear() 
 
     # Initialize random_card_list_blit once
-    random_card = Card()
+    random_card = Cardrandomize()
     random_card_list = random_card.random_card_list # This variable is important for card matching
-    print(random_card_list)
+    # print(random_card_list)
 
     # Create a list of card images for blitting
     for card_name in random_card_list:
@@ -180,7 +180,7 @@ def start_main_game():
     # Accessing the class for opening the card faces
     open_card = Cardfaces(card_back_deck, card_list, random_card_list_blit, target_positions)
 
-    flipped_card_indexs = []  # Track indexes of flipped cards, which is going to be the same as the indexes of random_card_list
+    flipped_card_indexes = []  # Track indexes of flipped cards, which is going to be the same as the indexes of random_card_list
     turn_card_back = False  # Flag to indicate whether to turn back the cards after a match
 
     while True:
@@ -196,15 +196,14 @@ def start_main_game():
                 for i, rect in enumerate(card_rects):
                     if rect.collidepoint(mouse_pos) and not open_card.flipped_cards[i]:
                         open_card.set_flipped_cards(i)
-                        flipped_card_indexs.append(i)
-                        print(flipped_card_indexs)
+                        flipped_card_indexes.append(i)
 
-                        if len(flipped_card_indexs) == 2:
-                            index1 = flipped_card_indexs[0]
-                            index2 = flipped_card_indexs[1]
+                        if len(flipped_card_indexes) == 2:
+                            index1 = flipped_card_indexes[0]
+                            index2 = flipped_card_indexes[1]
 
                             if random_card_list[index1] == random_card_list[index2]: # As we can see we use random_card_list's index for matching
-                                flipped_card_indexs.clear()  # Reset the list for the next pair
+                                flipped_card_indexes.clear()  # Reset the list for the next pair
                                 waiting_time = pygame.time.get_ticks() + 1000  # Set the time to wait before starting the game again
                             else:
                                 turn_card_back = True
@@ -212,9 +211,9 @@ def start_main_game():
 
         # Turn back non-matching cards after a delay
         if turn_card_back and pygame.time.get_ticks() >= turning_time:
-            open_card.set_flipped_cards(flipped_card_indexs[0], False)
-            open_card.set_flipped_cards(flipped_card_indexs[1], False)
-            flipped_card_indexs.clear()
+            open_card.set_flipped_cards(flipped_card_indexes[0], False)
+            open_card.set_flipped_cards(flipped_card_indexes[1], False)
+            flipped_card_indexes.clear()
             turn_card_back = False
 
         # Render background
@@ -237,7 +236,8 @@ def start_main_game():
         screen.blit(timer_text, timer_text_rect)  # Draw the timer text
 
         # Break the loop when countdown reaches zero
-        if seconds_left == 0: break
+        if seconds_left == 0: 
+            break
 
         pygame.display.flip()  # Update the display
 
