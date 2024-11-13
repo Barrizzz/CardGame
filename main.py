@@ -43,18 +43,12 @@ start_button = Buttons(500, 300, "Start Game", font)
 options_button = Buttons(500, 370, "Options", font)
 quit_button = Buttons(500, 440, "Quit", font)
 
-# Initialize card_list_blit once
-random_card = Card()
-card_name_list = random_card.random_card_list # This variable is important for card matching
-print(card_name_list)
+random_card_list = []  # List of random cards
+random_card_list_blit = []  # List of card images for blitting
 
-# Make a list of the card_name (This is for the blit function)
-card_list_blit = []
-for card_name in card_name_list:
-    card_image_path = "sprites/cardface/" + card_name + ".png"
-    card_image = pygame.image.load(card_image_path)
-    card_image = pygame.transform.scale(card_image, (100, 150))
-    card_list_blit.append(card_image)
+decrement = 10
+main_countdown_time = 60 + decrement # This is to ensure that the initial countdown is 60 seconds
+
 
 def game_menu():
     while True:
@@ -66,7 +60,7 @@ def game_menu():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if start_button.mouse_hover(mouse_pos):
-                    start_animation()
+                    create_random_cards()
                 elif options_button.mouse_hover(mouse_pos):
                     options()
                 elif quit_button.mouse_hover(mouse_pos):
@@ -82,6 +76,27 @@ def game_menu():
 
         pygame.display.flip()
         clock.tick(FPS)
+
+def create_random_cards():
+    global random_card_list, random_card_list_blit
+
+    # Clear the lists before starting a new game
+    random_card_list.clear()
+    random_card_list_blit.clear() 
+
+    # Initialize random_card_list_blit once
+    random_card = Card()
+    random_card_list = random_card.random_card_list # This variable is important for card matching
+    print(random_card_list)
+
+    # Create a list of card images for blitting
+    for card_name in random_card_list:
+        card_image_path = "sprites/cardface/" + card_name + ".png"
+        card_image = pygame.image.load(card_image_path)
+        card_image = pygame.transform.scale(card_image, (100, 150))
+        random_card_list_blit.append(card_image)
+    
+    start_animation()
 
 def start_animation():
     # Draw the background once
@@ -117,10 +132,10 @@ def start_animation():
             clock.tick(FPS)  # Control the frame rate
 
     # After animating all cards, start the countdown
-    countdown_timer()
+    memorize_cards()
 
-def countdown_timer():
-    countdown_time = 2  # Initial countdown for memorizing the cards
+def memorize_cards():
+    memorizing_time = 2  # Initial countdown for memorizing the cards
     start_ticks = pygame.time.get_ticks()
     
     while True:
@@ -133,7 +148,7 @@ def countdown_timer():
         screen.blit(image_bg, (0, 0))
         
         # Calculate remaining time
-        seconds_left = countdown_time - (pygame.time.get_ticks() - start_ticks) // 1000
+        seconds_left = memorizing_time - (pygame.time.get_ticks() - start_ticks) // 1000
         if seconds_left < 0: seconds_left = 0 
         
         # Rendering the timer text
@@ -143,8 +158,8 @@ def countdown_timer():
 
         # Render the cards only if the countdown is not over
         if seconds_left > 0:  
-            # Render all cards from the randomized card list (card_name_list)
-            for i, card in enumerate(card_list_blit):
+            # Render all cards from the randomized card list (random_card_list)
+            for i, card in enumerate(random_card_list_blit):
                 screen.blit(card, target_positions[i])
 
         # Break the loop when countdown reaches zero
@@ -152,18 +167,21 @@ def countdown_timer():
 
         pygame.display.flip()  # Update the display
 
-    # Start the main countdown timer
-    start_main_countdown()
+    # Start the main game
+    start_main_game()
 
-def start_main_countdown():
-    countdown_time = 60 # Main countdown
+def start_main_game():
+    global main_countdown_time, decrement
+
+    main_countdown_time -= decrement # subtracting the main countdown everytime the game starts
+    if main_countdown_time <= 5: main_countdown_time = 5 # Minimum countdown time
+
     start_ticks = pygame.time.get_ticks()
     # Accessing the class for opening the card faces
-    open_card = Cardfaces(card_back_deck, card_list, card_list_blit, target_positions)
+    open_card = Cardfaces(card_back_deck, card_list, random_card_list_blit, target_positions)
 
-    flipped_indices = []  # Track indices of flipped cards
+    flipped_card_indexs = []  # Track indexes of flipped cards, which is going to be the same as the indexes of random_card_list
     turn_card_back = False  # Flag to indicate whether to turn back the cards after a match
-    turn_back_time = 0  # Time when cards should be turned back
 
     while True:
         card_rects = open_card.get_card_rect()  # Get the card rects
@@ -173,45 +191,49 @@ def start_main_countdown():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
+
+            elif event.type == pygame.MOUSEBUTTONDOWN and not turn_card_back:
                 for i, rect in enumerate(card_rects):
                     if rect.collidepoint(mouse_pos) and not open_card.flipped_cards[i]:
                         open_card.set_flipped_cards(i)
-                        flipped_indices.append(i)
-                        print(flipped_indices)
+                        flipped_card_indexs.append(i)
+                        print(flipped_card_indexs)
 
-                        if len(flipped_indices) == 2:
-                            index1 = flipped_indices[0]
-                            index2 = flipped_indices[1]
+                        if len(flipped_card_indexs) == 2:
+                            index1 = flipped_card_indexs[0]
+                            index2 = flipped_card_indexs[1]
 
-                            if card_name_list[index1] == card_name_list[index2]:
-                                print("Card Matched!")
-                                flipped_indices.clear()  # Reset the list for the next pair
+                            if random_card_list[index1] == random_card_list[index2]: # As we can see we use random_card_list's index for matching
+                                flipped_card_indexs.clear()  # Reset the list for the next pair
+                                waiting_time = pygame.time.get_ticks() + 1000  # Set the time to wait before starting the game again
                             else:
-                                print("Card Not Matched!")
                                 turn_card_back = True
-                                turn_back_time = pygame.time.get_ticks() + 1000  # Set the time to turn back cards
+                                turning_time = pygame.time.get_ticks() + 700 # Set the time to turn back cards
 
         # Turn back non-matching cards after a delay
-        if turn_card_back and pygame.time.get_ticks() >= turn_back_time:
-            open_card.set_flipped_cards(flipped_indices[0], False)
-            open_card.set_flipped_cards(flipped_indices[1], False)
-            flipped_indices.clear()
+        if turn_card_back and pygame.time.get_ticks() >= turning_time:
+            open_card.set_flipped_cards(flipped_card_indexs[0], False)
+            open_card.set_flipped_cards(flipped_card_indexs[1], False)
+            flipped_card_indexs.clear()
             turn_card_back = False
-
-        # Calculate remaining time
-        seconds_left = countdown_time - (pygame.time.get_ticks() - start_ticks) // 1000
-        if seconds_left < 0: seconds_left = 0
 
         # Render background
         screen.blit(image_bg, (0, 0))
-
         # Render all cards
         open_card.render_cards()
 
+        # Start the game again if all the cards are facing up
+        if all(open_card.flipped_cards) and pygame.time.get_ticks() >= waiting_time: # Check if flipped_cards list is all True and the waiting time is over, so that the last card can still be shown
+            create_random_cards()
+
+        '''This is all about the time management'''
+        # Calculate remaining time
+        seconds_left = main_countdown_time - (pygame.time.get_ticks() - start_ticks) // 1000
+        if seconds_left < 0: seconds_left = 0
+
         # Render the countdown timer at the middle top
         timer_text = font_timer.render(str(seconds_left), True, (255, 255, 255))
-        timer_text_rect = timer_text.get_rect(center=(500, 70))  # Center at (500, 50)
+        timer_text_rect = timer_text.get_rect(center=(500, 70))  # get the rect of the text and centers it to (500, 70)
         screen.blit(timer_text, timer_text_rect)  # Draw the timer text
 
         # Break the loop when countdown reaches zero

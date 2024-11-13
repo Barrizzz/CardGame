@@ -21,8 +21,8 @@ class Cardfaces:
             self.card_rects.append(rect)
         return self.card_rects
     
-    def set_flipped_cards(self, i, flipped=True):
-        self.flipped_cards[i] = flipped  # Mark card as flipped or unflipped
+    def set_flipped_cards(self, i, flipped = True):
+        self.flipped_cards[i] = flipped # True = flipped, False = not flipped
 
     def render_cards(self):
         for i in range(len(self.card_list)):
