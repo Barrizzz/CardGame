@@ -1,5 +1,7 @@
 import pygame
 import sys
+from random import randint
+
 from packages.menubuttons import Buttons
 from packages.title import Title
 from packages.cardanimation import Cardanimation
@@ -16,6 +18,10 @@ FPS = 60
 # Background Image
 image_bg = pygame.image.load("sprites/background.jpg")
 image_bg = pygame.transform.scale(image_bg, (1000, 600))
+
+# Mikel jumpscare
+mikel_jumpscare = pygame.image.load("sprites/mikel.jpg")
+mikel_jumpscare = pygame.transform.scale(mikel_jumpscare, (1000, 600))
 
 # Card Back Image
 card_back_deck = pygame.image.load("sprites/card_back_cyan.png")
@@ -46,7 +52,7 @@ quit_button = Buttons(500, 440, "Quit", font)
 random_card_list = []  # List of random cards
 random_card_list_blit = []  # List of card images for blitting
 
-decrement = 10
+decrement = randint(10, 15)
 main_countdown_time = 60 + decrement # This is to ensure that the initial countdown is 60 seconds
 
 
@@ -113,13 +119,17 @@ def start_animation():
 
         while True:
             # Render background (keep it persistent)
-            screen.blit(image_bg, (0, 0))
+            screen.blit(image_bg, (0, 0)) 
             # Calling the card_animation function from the Cardanimation
             card_pos = card_animator.card_animation()
 
             # Draw all cards in their respective positions
             for i, drawn_card in enumerate(card_list):
-                position = target_positions[i] if i < index else (450, 0)
+                if i < index:
+                    position = target_positions[i]  
+                else:
+                    position = (450, 0)
+
                 if i == index:
                     position = tuple(card_pos)  # Animate the current card
                 screen.blit(drawn_card, position)
@@ -183,10 +193,16 @@ def start_main_game():
     flipped_card_indexes = []  # Track indexes of flipped cards, which is going to be the same as the indexes of random_card_list
     turn_card_back = False  # Flag to indicate whether to turn back the cards after a match
 
+    track_success_attempts = 0 # Track the successive success attempts
+    track_fail_attempts = 0 # Track the successive fail attempts
+    # Jumpscare variables
+    display_mikel_jumpscare = False
+    jumpscare_time = 0
+
     while True:
         card_rects = open_card.get_card_rect()  # Get the card rects
         mouse_pos = pygame.mouse.get_pos()  # Update mouse position
-
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -205,9 +221,13 @@ def start_main_game():
                             if random_card_list[index1] == random_card_list[index2]: # As we can see we use random_card_list's index for matching
                                 flipped_card_indexes.clear()  # Reset the list for the next pair
                                 waiting_time = pygame.time.get_ticks() + 1000  # Set the time to wait before starting the game again
+                                track_success_attempts += 1
+                                track_fail_attempts = 0
                             else:
                                 turn_card_back = True
                                 turning_time = pygame.time.get_ticks() + 700 # Set the time to turn back cards
+                                track_fail_attempts += 1
+                                track_success_attempts = 0
 
         # Turn back non-matching cards after a delay
         if turn_card_back and pygame.time.get_ticks() >= turning_time:
@@ -215,6 +235,20 @@ def start_main_game():
             open_card.set_flipped_cards(flipped_card_indexes[1], False)
             flipped_card_indexes.clear()
             turn_card_back = False
+
+        '''Very funny jumpscare mechanism'''
+        # Render jumpscare conditions
+        if track_fail_attempts == 3 and not display_mikel_jumpscare: # display_mikey_jumpscare is initially False
+            display_mikel_jumpscare = True
+            jumpscare_time = pygame.time.get_ticks() + 1000
+        
+        # Render the jumpscare image
+        if display_mikel_jumpscare:
+            screen.blit(mikel_jumpscare, (0, 0))
+            pygame.display.flip()  # Update the display to show the jumpscare image
+            if pygame.time.get_ticks() >= jumpscare_time:
+                track_fail_attempts = 0
+                display_mikel_jumpscare = False
 
         # Render background
         screen.blit(image_bg, (0, 0))
