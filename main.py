@@ -8,6 +8,7 @@ from packages.cardanimation import Cardanimation
 from packages.card_randomizer import Cardrandomize
 from packages.showing_cards import Cardfaces
 pygame.init()
+pygame.mixer.init()
 
 # Setting up the display
 screen = pygame.display.set_mode((1000, 600))
@@ -53,8 +54,9 @@ random_card_list = []  # List of random cards
 random_card_list_blit = []  # List of card images for blitting
 
 decrement = randint(10, 15)
-main_countdown_time = 60 + decrement # This is to ensure that the initial countdown is 60 seconds
+main_countdown_time = 5 + decrement # This is to ensure that the initial countdown is 60 seconds
 
+mikel_jumpscare_sound = pygame.mixer.Sound("sound/ascending_jumpscare.mp3")
 
 def game_menu():
     while True:
@@ -197,6 +199,7 @@ def start_main_game():
     track_fail_attempts = 0 # Track the successive fail attempts
     # Jumpscare variables
     display_mikel_jumpscare = False
+    display_final_jumpscare = True
     jumpscare_time = 0
 
     while True:
@@ -240,6 +243,8 @@ def start_main_game():
         # Render jumpscare conditions
         if track_fail_attempts == 3 and not display_mikel_jumpscare: # display_mikey_jumpscare is initially False
             display_mikel_jumpscare = True
+            mikel_jumpscare_sound.play()
+            mikel_jumpscare_sound.set_volume(0.2)
             jumpscare_time = pygame.time.get_ticks() + 1000
         
         # Render the jumpscare image
@@ -269,9 +274,22 @@ def start_main_game():
         timer_text_rect = timer_text.get_rect(center=(500, 70))  # get the rect of the text and centers it to (500, 70)
         screen.blit(timer_text, timer_text_rect)  # Draw the timer text
 
+        '''This is if the timer ran out'''
         # Break the loop when countdown reaches zero
-        if seconds_left == 0: 
-            break
+        if seconds_left == 0 and display_final_jumpscare: 
+            display_final_jumpscare = False
+            jumpscare_time = pygame.time.get_ticks() + 3000
+            mikel_jumpscare_sound.play()
+            mikel_jumpscare_sound.set_volume(0.3)
+
+        if not display_final_jumpscare:
+            screen.blit(mikel_jumpscare, (0, 0))
+            lose_text = font_timer.render("You Lose!", True, (255, 0, 0))
+            lose_text_rect = lose_text.get_rect(center=(500, 70))
+            screen.blit(lose_text, lose_text_rect)
+            if pygame.time.get_ticks() >= jumpscare_time:
+                display_final_jumpscare = False
+                game_menu()
 
         pygame.display.flip()  # Update the display
 
