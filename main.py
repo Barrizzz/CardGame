@@ -249,7 +249,7 @@ def start_main_game():
             if pygame.time.get_ticks() >= jumpscare_time:
                 track_fail_attempts = 0
                 display_mikel_jumpscare = False
-
+        
         # Render background
         screen.blit(image_bg, (0, 0))
         # Render all cards
