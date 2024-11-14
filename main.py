@@ -188,7 +188,7 @@ def start_main_game():
     global main_countdown_time, decrement
 
     main_countdown_time -= decrement # subtracting the main countdown everytime the game starts
-    if main_countdown_time <= 5: main_countdown_time = randint(5, 10) # Minimum countdown time
+    if main_countdown_time <= 5: main_countdown_time = randint(6, 10) # Minimum countdown time
 
     start_ticks = pygame.time.get_ticks()
     # Accessing the class for opening the card faces
@@ -293,6 +293,8 @@ def start_main_game():
             screen.blit(lose_text, lose_text_rect)
             if pygame.time.get_ticks() >= jumpscare_time:
                 display_final_jumpscare = False
+                main_countdown_time = 60
+                decrement = 0
                 game_menu()
 
         pygame.display.flip()  # Update the display
