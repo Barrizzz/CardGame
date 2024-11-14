@@ -58,7 +58,7 @@ decrement = 0 # Initialize the decrement
 main_countdown_time = main_time # This is to ensure that the initial countdown is 60 seconds
 
 # This is for sounds
-mikel_jumpscare_sound = pygame.mixer.Sound("sound/ascending_jumpscare.mp3")
+mikel_jumpscare_sound = pygame.mixer.Sound("sounds/ascending_jumpscare.mp3")
 
 def game_menu():
     while True:
@@ -262,11 +262,6 @@ def start_main_game():
         # Render all cards
         open_card.render_cards()
 
-        # Start the game again if all the cards are facing up
-        if all(open_card.flipped_cards) and pygame.time.get_ticks() >= waiting_time: # Check if flipped_cards list is all True and the waiting time is over, so that the last card can still be shown
-            decrement = randint(10, 15) # Set the decrement when the user won, and starting the game again
-            create_random_cards()
-
         '''This is all about the time management'''
         # Calculate remaining time
         seconds_left = main_countdown_time - (pygame.time.get_ticks() - start_ticks) // 1000
@@ -277,7 +272,13 @@ def start_main_game():
         timer_text_rect = timer_text.get_rect(center=(500, 70))  # get the rect of the text and centers it to (500, 70)
         screen.blit(timer_text, timer_text_rect)  # Draw the timer text
 
-        '''This is if the timer ran out'''
+        '''This is if the player won'''
+        # Start the game again if all the cards are facing up
+        if all(open_card.flipped_cards) and pygame.time.get_ticks() >= waiting_time: # Check if flipped_cards list is all True and the waiting time is over, so that the last card can still be shown
+            decrement = randint(10, 15) # Set the decrement when the user won, and starting the game again
+            create_random_cards()
+
+        '''This is if the timer ran out (Player lose)'''
         # Break the loop when countdown reaches zero
         if seconds_left == 0 and display_final_jumpscare: 
             display_final_jumpscare = False
