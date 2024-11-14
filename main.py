@@ -54,8 +54,8 @@ random_card_list = []  # List of random cards
 random_card_list_blit = []  # List of card images for blitting
 
 main_time = 60 # Main countdown time in seconds
-decrement = randint(10, 15)
-main_countdown_time = main_time + decrement # This is to ensure that the initial countdown is 60 seconds
+decrement = 0 # Initialize the decrement
+main_countdown_time = main_time # This is to ensure that the initial countdown is 60 seconds
 
 mikel_jumpscare_sound = pygame.mixer.Sound("sound/ascending_jumpscare.mp3")
 
@@ -187,7 +187,7 @@ def start_main_game():
     global main_countdown_time, decrement
 
     main_countdown_time -= decrement # subtracting the main countdown everytime the game starts
-    if main_countdown_time <= 5: main_countdown_time = 5 # Minimum countdown time
+    if main_countdown_time <= 5: main_countdown_time = randint(5, 10) # Minimum countdown time
 
     start_ticks = pygame.time.get_ticks()
     # Accessing the class for opening the card faces
@@ -263,6 +263,7 @@ def start_main_game():
 
         # Start the game again if all the cards are facing up
         if all(open_card.flipped_cards) and pygame.time.get_ticks() >= waiting_time: # Check if flipped_cards list is all True and the waiting time is over, so that the last card can still be shown
+            decrement = randint(10, 15) # Set the decrement when the user won, and starting the game again
             create_random_cards()
 
         '''This is all about the time management'''
