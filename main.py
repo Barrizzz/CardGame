@@ -54,7 +54,6 @@ random_card_list = []  # List of random cards
 random_card_list_blit = []  # List of card images for blitting
 
 main_time = 60 # Main countdown time in seconds
-decrement = 0 # Initialize the decrement
 main_countdown_time = main_time # This is to ensure that the initial countdown is 60 seconds
 
 # This is for sounds
@@ -185,10 +184,7 @@ def memorize_cards():
     start_main_game()
 
 def start_main_game():
-    global main_countdown_time, decrement
-
-    main_countdown_time -= decrement # subtracting the main countdown everytime the game starts
-    if main_countdown_time <= 5: main_countdown_time = randint(6, 10) # Minimum countdown time
+    global main_countdown_time, main_time, decrement
 
     start_ticks = pygame.time.get_ticks()
     # Accessing the class for opening the card faces
@@ -199,10 +195,14 @@ def start_main_game():
 
     track_success_attempts = 0 # Track the successive success attempts
     track_fail_attempts = 0 # Track the successive fail attempts
+    
     # Jumpscare variables
     display_mikel_jumpscare = False
     display_final_jumpscare = True
     jumpscare_time = 0
+
+    # This is if the success attempt is three in a row, this is for checking if the success attempt reaches five in a row
+    no_more_failures_attempts = False
 
     while True:
         card_rects = open_card.get_card_rect()  # Get the card rects
@@ -220,9 +220,7 @@ def start_main_game():
                         flipped_card_indexes.append(i)
 
                         if len(flipped_card_indexes) == 2:
-                            index1 = flipped_card_indexes[0]
-                            index2 = flipped_card_indexes[1]
-
+                            index1, index2 = flipped_card_indexes
                             if random_card_list[index1] == random_card_list[index2]: # As we can see we use random_card_list's index for matching
                                 flipped_card_indexes.clear()  # Reset the list for the next pair
                                 waiting_time = pygame.time.get_ticks() + 1000  # Set the time to wait before starting the game again
@@ -233,6 +231,7 @@ def start_main_game():
                                 turning_time = pygame.time.get_ticks() + 700 # Set the time to turn back cards
                                 track_fail_attempts += 1
                                 track_success_attempts = 0
+                                no_more_failures_attempts = False
 
         # Turn back non-matching cards after a delay
         if turn_card_back and pygame.time.get_ticks() >= turning_time:
@@ -254,6 +253,7 @@ def start_main_game():
             screen.blit(mikel_jumpscare, (0, 0))
             pygame.display.flip()  # Update the display to show the jumpscare image
             if pygame.time.get_ticks() >= jumpscare_time:
+                main_countdown_time -= randint(5, 10) # Random time penalty
                 track_fail_attempts = 0
                 display_mikel_jumpscare = False
         
@@ -275,8 +275,23 @@ def start_main_game():
         '''This is if the player won'''
         # Start the game again if all the cards are facing up
         if all(open_card.flipped_cards) and pygame.time.get_ticks() >= waiting_time: # Check if flipped_cards list is all True and the waiting time is over, so that the last card can still be shown
-            decrement = randint(10, 15) # Set the decrement when the user won, and starting the game again
-            create_random_cards()
+            main_countdown_time = seconds_left # Calculate the remaining time to be set to the main time for the next round
+            # print(main_countdown_time)
+            decrement = randint(7, 10) # Set the decrement when the user won, and starting the game again
+            main_countdown_time -= decrement  # Ensure the countdown time is decremented when the player wins
+            if main_countdown_time <= 5: main_countdown_time = randint(6, 10)  # Ensure minimum countdown time
+            # print(main_countdown_time)
+            create_random_cards() # Start the game again
+
+        '''Bonus time and time penalty system'''
+        if track_success_attempts == 3:
+            main_countdown_time += randint(4, 7) 
+            track_success_attempts = 0
+            no_more_failures_attempts = True
+        elif track_success_attempts == 2 and no_more_failures_attempts:
+            main_countdown_time += (10, 12)
+            track_success_attempts = 0
+            no_more_failures_attempts = False
 
         '''This is if the timer ran out (Player lose)'''
         # Break the loop when countdown reaches zero
@@ -293,7 +308,7 @@ def start_main_game():
             screen.blit(lose_text, lose_text_rect)
             if pygame.time.get_ticks() >= jumpscare_time:
                 display_final_jumpscare = False
-                main_countdown_time = 60
+                main_countdown_time = main_time
                 decrement = 0
                 game_menu()
 
