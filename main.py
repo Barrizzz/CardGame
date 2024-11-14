@@ -57,6 +57,7 @@ main_time = 60 # Main countdown time in seconds
 decrement = 0 # Initialize the decrement
 main_countdown_time = main_time # This is to ensure that the initial countdown is 60 seconds
 
+# This is for sounds
 mikel_jumpscare_sound = pygame.mixer.Sound("sound/ascending_jumpscare.mp3")
 
 def game_menu():
