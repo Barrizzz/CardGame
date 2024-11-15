@@ -277,9 +277,9 @@ def start_main_game():
         if all(open_card.flipped_cards) and pygame.time.get_ticks() >= waiting_time: # Check if flipped_cards list is all True and the waiting time is over, so that the last card can still be shown
             main_countdown_time = seconds_left # Calculate the remaining time to be set to the main time for the next round
             # print(main_countdown_time)
-            decrement = randint(7, 10) # Set the decrement when the user won, and starting the game again
+            decrement = randint(4, 8) # Set the decrement when the user won, and starting the game again
             main_countdown_time -= decrement  # Ensure the countdown time is decremented when the player wins
-            if main_countdown_time <= 5: main_countdown_time = randint(6, 10)  # Ensure minimum countdown time
+            if main_countdown_time <= 10: main_countdown_time = randint(8, 12)  # Ensure minimum countdown time
             # print(main_countdown_time)
             create_random_cards() # Start the game again
 
