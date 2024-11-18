@@ -1,5 +1,4 @@
-import pygame
-import sys
+import pygame, sys
 from random import randint
 
 from packages.menubuttons import Buttons
@@ -179,6 +178,7 @@ def memorize_cards():
         if seconds_left == 0: break
 
         pygame.display.flip()  # Update the display
+        clock.tick(FPS)
 
     # Start the main game
     start_main_game()
@@ -277,7 +277,7 @@ def start_main_game():
         if all(open_card.flipped_cards) and pygame.time.get_ticks() >= waiting_time: # Check if flipped_cards list is all True and the waiting time is over, so that the last card can still be shown
             main_countdown_time = seconds_left # Calculate the remaining time to be set to the main time for the next round
             # print(main_countdown_time)
-            decrement = randint(4, 8) # Set the decrement when the user won, and starting the game again
+            decrement = 0 #randint(3, 5) # Set the decrement when the user won, and starting the game again
             main_countdown_time -= decrement  # Ensure the countdown time is decremented when the player wins
             if main_countdown_time <= 10: main_countdown_time = randint(8, 12)  # Ensure minimum countdown time
             # print(main_countdown_time)
@@ -289,7 +289,7 @@ def start_main_game():
             track_success_attempts = 0
             no_more_failures_attempts = True
         elif track_success_attempts == 2 and no_more_failures_attempts:
-            main_countdown_time += (10, 12)
+            main_countdown_time += randint(10, 12)
             track_success_attempts = 0
             no_more_failures_attempts = False
 
@@ -313,6 +313,7 @@ def start_main_game():
                 game_menu()
 
         pygame.display.flip()  # Update the display
+        clock.tick(FPS + 100)
 
 def options():
     while True:
