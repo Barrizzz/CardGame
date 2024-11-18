@@ -19,9 +19,11 @@ FPS = 60
 image_bg = pygame.image.load("sprites/background.jpg")
 image_bg = pygame.transform.scale(image_bg, (1000, 600))
 
-# Mikel jumpscare
+# jumpscares
 mikel_jumpscare = pygame.image.load("sprites/mikel.jpg")
 mikel_jumpscare = pygame.transform.scale(mikel_jumpscare, (1000, 600))
+jason_jumpscare = pygame.image.load("sprites/jason.png")
+jason_jumpscare= pygame.transform.scale(jason_jumpscare, (1000, 600))
 
 # Card Back Image
 card_back_deck = pygame.image.load("sprites/card_back_cyan.png")
@@ -111,7 +113,7 @@ def start_animation():
     screen.blit(image_bg, (0, 0))
 
     # Animation loop for cards
-    for index, _ in enumerate(card_list):
+    for index in range(len(card_list)):
         target_pos = target_positions[index]
         card_pos = [450, 0]  # Start position for the animation
         animation_speed = [20, 20]  # Speed of the animation
@@ -120,6 +122,11 @@ def start_animation():
         card_animator = Cardanimation(card_pos, target_pos, animation_speed)
 
         while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+
             # Render background (keep it persistent)
             screen.blit(image_bg, (0, 0)) 
             # Calling the card_animation function from the Cardanimation
@@ -197,9 +204,11 @@ def start_main_game():
     track_fail_attempts = 0 # Track the successive fail attempts
     
     # Jumpscare variables
-    display_mikel_jumpscare = False
+    display_jumpscare = False
     display_final_jumpscare = True
     jumpscare_time = 0
+
+    select_jumpscare_flag = True
 
     # This is if the success attempt is three in a row, this is for checking if the success attempt reaches five in a row
     no_more_failures_attempts = False
@@ -241,21 +250,45 @@ def start_main_game():
             turn_card_back = False
 
         '''Very funny jumpscare mechanism'''
+        if select_jumpscare_flag: 
+            select_jumpscare = randint(1, 2)
+            print(select_jumpscare)
+            select_jumpscare_flag = False
+
         # Render jumpscare conditions
-        if track_fail_attempts == 3 and not display_mikel_jumpscare: # display_mikey_jumpscare is initially False
-            display_mikel_jumpscare = True
-            mikel_jumpscare_sound.play()
-            mikel_jumpscare_sound.set_volume(0.2)
-            jumpscare_time = pygame.time.get_ticks() + 1000
-        
-        # Render the jumpscare image
-        if display_mikel_jumpscare:
-            screen.blit(mikel_jumpscare, (0, 0))
-            pygame.display.flip()  # Update the display to show the jumpscare image
-            if pygame.time.get_ticks() >= jumpscare_time:
-                main_countdown_time -= randint(5, 10) # Random time penalty
-                track_fail_attempts = 0
-                display_mikel_jumpscare = False
+        if select_jumpscare == 1:
+            if track_fail_attempts == 3 and not display_jumpscare: # display_mikey_jumpscare is initially False
+                display_jumpscare = True
+                mikel_jumpscare_sound.play()
+                mikel_jumpscare_sound.set_volume(0.2)
+                jumpscare_time = pygame.time.get_ticks() + 1000
+            
+            # Render the jumpscare image
+            if display_jumpscare:
+                screen.blit(mikel_jumpscare, (0, 0))
+                pygame.display.flip()  # Update the display to show the jumpscare image
+                if pygame.time.get_ticks() >= jumpscare_time:
+                    main_countdown_time -= randint(5, 10) # Random time penalty
+                    track_fail_attempts = 0
+                    display_jumpscare = False
+                    select_jumpscare_flag = True
+
+        if select_jumpscare == 2:
+            if track_fail_attempts == 3 and not display_jumpscare: # display_mikey_jumpscare is initially False
+                display_jumpscare = True
+                mikel_jumpscare_sound.play()
+                mikel_jumpscare_sound.set_volume(0.2)
+                jumpscare_time = pygame.time.get_ticks() + 1000
+            
+            # Render the jumpscare image
+            if display_jumpscare:
+                screen.blit(jason_jumpscare, (0, 0))
+                pygame.display.flip()  # Update the display to show the jumpscare image
+                if pygame.time.get_ticks() >= jumpscare_time:
+                    main_countdown_time -= randint(5, 10) # Random time penalty
+                    track_fail_attempts = 0
+                    display_jumpscare = False
+                    select_jumpscare_flag = True
         
         # Render background
         screen.blit(image_bg, (0, 0))
@@ -313,7 +346,7 @@ def start_main_game():
                 game_menu()
 
         pygame.display.flip()  # Update the display
-        clock.tick(FPS + 100)
+        clock.tick(FPS - 20)
 
 def options():
     while True:
