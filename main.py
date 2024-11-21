@@ -346,7 +346,7 @@ def start_main_game():
                 game_menu()
 
         pygame.display.flip()  # Update the display
-        clock.tick(FPS + 20)
+        clock.tick(FPS + 20) # make the fps bigger
 
 def options():
     while True:
