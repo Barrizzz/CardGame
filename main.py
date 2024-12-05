@@ -88,6 +88,7 @@ def game_menu():
         clock.tick(FPS)
 
 def create_random_cards():
+    """ ..."""
     global random_card_list, random_card_list_blit
 
     # Clear the lists before starting a new game
@@ -252,7 +253,7 @@ def start_main_game():
         '''Very funny jumpscare mechanism'''
         if select_jumpscare_flag: 
             select_jumpscare = randint(1, 2)
-            print(select_jumpscare)
+            # print(select_jumpscare)
             select_jumpscare_flag = False
 
         # Render jumpscare conditions
