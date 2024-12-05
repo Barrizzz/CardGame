@@ -3,14 +3,14 @@ import random
 pygame.init()
 
 class Cardrandomize:
-    def __init__(self):
+    def __init__(self, random_card_list, random_card_list_blit):
         self.cardList = ['queen_of_clubs', 'jack_of_diamonds', '7_of_diamonds', 'ace_of_spades', 'ace_of_hearts', '10_of_hearts', 
                         'ace_of_spades', 'ace_of_hearts', '10_of_hearts', 'jack_of_diamonds', 'queen_of_clubs',
                         '7_of_diamonds'
                         ]
         
-        self.random_card_list = []
-        self.random_card_list_blit = []
+        self.random_card_list = random_card_list
+        self.random_card_list_blit = random_card_list_blit
         
     def generate_random_card(self):
         randomlist = []
@@ -21,10 +21,6 @@ class Cardrandomize:
         return randomlist
     
     def create_random_cards(self):
-        # Clear the lists before starting a new game
-        self.random_card_list.clear()
-        self.random_card_list_blit.clear() 
-
         # Generate a new random card list
         self.random_card_list = self.generate_random_card()
 
