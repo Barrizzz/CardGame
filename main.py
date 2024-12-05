@@ -4,7 +4,7 @@ from random import randint
 from packages.menubuttons import Buttons
 from packages.title import Title
 from packages.cardanimation import Cardanimation
-from packages.card_randomizer import Cardrandomize
+from packages.card_randomizer import Cardrandomizer
 from packages.showing_cards import Cardfaces
 pygame.init()
 pygame.mixer.init()
@@ -88,6 +88,19 @@ def game_menu():
         pygame.display.flip()
         clock.tick(FPS)
 
+def options():
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        screen.fill((0, 0, 0))
+        screen.blit(image_bg, (0, 0))  # Draw the background
+
+        pygame.display.flip()
+        clock.tick(FPS)
+    
 def start_main_game():
     global main_countdown_time, main_time, decrement
 
@@ -98,7 +111,7 @@ def start_main_game():
     # Randomize the cards
     random_card_list = []
     random_card_list_blit = []
-    random = Cardrandomize(random_card_list, random_card_list_blit)
+    random = Cardrandomizer(random_card_list, random_card_list_blit)
 
     # Randomize cards, and show cards
     random.create_random_cards()
@@ -243,18 +256,5 @@ def start_main_game():
         pygame.display.flip()  # Update the display
         clock.tick(FPS + 100) # make the fps bigger
 
-def options():
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-
-        screen.fill((0, 0, 0))
-        screen.blit(image_bg, (0, 0))  # Draw the background
-
-        pygame.display.flip()
-        clock.tick(FPS)
-    
 # Start the game menu
 game_menu()

@@ -2,7 +2,7 @@ import pygame
 import random
 pygame.init()
 
-class Cardrandomize:
+class Cardrandomizer:
     def __init__(self, random_card_list, random_card_list_blit):
         self.cardList = ['queen_of_clubs', 'jack_of_diamonds', '7_of_diamonds', 'ace_of_spades', 'ace_of_hearts', '10_of_hearts', 
                         'ace_of_spades', 'ace_of_hearts', '10_of_hearts', 'jack_of_diamonds', 'queen_of_clubs',
