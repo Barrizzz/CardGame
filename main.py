@@ -20,8 +20,13 @@ image_bg = pygame.image.load("sprites/background.jpg")
 image_bg = pygame.transform.scale(image_bg, (1000, 600))
 
 # jumpscares
-mikel_jumpscare = pygame.image.load("sprites/mikel.jpg")
-mikel_jumpscare = pygame.transform.scale(mikel_jumpscare, (1000, 600))
+jumpscare_load = [pygame.image.load("sprites/mikel.jpg"), pygame.image.load("sprites/jason.png")]
+jumpscares = []
+for i in jumpscare_load:
+    jumpscares.append(pygame.transform.scale(i, (1000, 600)))
+print(jumpscares)
+
+#Volumes
 volume = 0.1
 
 # Card Back Image
@@ -50,14 +55,13 @@ start_button = Buttons(500, 300, "Start Game", font)
 options_button = Buttons(500, 370, "Options", font)
 quit_button = Buttons(500, 440, "Quit", font)
 
-random_card_list = []  # List of random cards
-random_card_list_blit = []  # List of card images for blitting
+random = Cardrandomize()
 
 main_time = 60 # Main countdown time in seconds
 main_countdown_time = main_time # This is to ensure that the initial countdown is 60 seconds
 
 # This is for sounds
-mikel_jumpscare_sound = pygame.mixer.Sound("sounds/ascending_jumpscare.mp3")
+jumpscare_sound = pygame.mixer.Sound("sounds/ascending_jumpscare.mp3")
 
 def game_menu():
     while True:
@@ -69,7 +73,8 @@ def game_menu():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if start_button.mouse_hover(mouse_pos):
-                    create_random_cards()
+                    random.create_random_cards()
+                    start_animation()
                 elif options_button.mouse_hover(mouse_pos):
                     options()
                 elif quit_button.mouse_hover(mouse_pos):
@@ -79,34 +84,12 @@ def game_menu():
         screen.blit(image_bg, (0, 0))
         title_text.render_title(screen)
        
-        mouse_hover_checker(start_button, mouse_pos)
-        mouse_hover_checker(options_button, mouse_pos)
-        mouse_hover_checker(quit_button, mouse_pos)
+        start_button.mouse_hover_checker(start_button, mouse_pos, screen)
+        options_button.mouse_hover_checker(options_button, mouse_pos, screen)
+        quit_button.mouse_hover_checker(quit_button, mouse_pos, screen)
 
         pygame.display.flip()
         clock.tick(FPS)
-
-def create_random_cards():
-    """ ..."""
-    global random_card_list, random_card_list_blit
-
-    # Clear the lists before starting a new game
-    random_card_list.clear()
-    random_card_list_blit.clear() 
-
-    # Initialize random_card_list_blit once
-    random_card = Cardrandomize()
-    random_card_list = random_card.random_card_list # This variable is important for card matching
-    # print(random_card_list)
-
-    # Create a list of card images for blitting
-    for card_name in random_card_list:
-        card_image_path = "sprites/cardface/" + card_name + ".png"
-        card_image = pygame.image.load(card_image_path)
-        card_image = pygame.transform.scale(card_image, (100, 150))
-        random_card_list_blit.append(card_image)
-    
-    start_animation()
 
 def start_animation():
     # Draw the background once
@@ -178,7 +161,7 @@ def memorize_cards():
         # Render the cards only if the countdown is not over
         if seconds_left > 0:  
             # Render all cards from the randomized card list (random_card_list)
-            for i, card in enumerate(random_card_list_blit):
+            for i, card in enumerate(random.random_card_list_blit):
                 screen.blit(card, target_positions[i])
 
         # Break the loop when countdown reaches zero
@@ -191,11 +174,11 @@ def memorize_cards():
     start_main_game()
 
 def start_main_game():
-    global main_countdown_time, main_time, decrement
+    global main_countdown_time, main_time, decrement, jumpscares, volume
 
     start_ticks = pygame.time.get_ticks()
     # Accessing the class for opening the card faces
-    open_card = Cardfaces(card_back_deck, card_list, random_card_list_blit, target_positions)
+    open_card = Cardfaces(card_back_deck, card_list, random.random_card_list_blit, target_positions)
 
     flipped_card_indexes = []  # Track indexes of flipped cards, which is going to be the same as the indexes of random_card_list
     turn_card_back = False  # Flag to indicate whether to turn back the cards after a match
@@ -230,7 +213,7 @@ def start_main_game():
 
                         if len(flipped_card_indexes) == 2:
                             index1, index2 = flipped_card_indexes
-                            if random_card_list[index1] == random_card_list[index2]: # As we can see we use random_card_list's index for matching
+                            if random.random_card_list[index1] == random.random_card_list[index2]: # As we can see we use random_card_list's index for matching
                                 flipped_card_indexes.clear()  # Reset the list for the next pair
                                 waiting_time = pygame.time.get_ticks() + 1000  # Set the time to wait before starting the game again
                                 track_success_attempts += 1
@@ -251,25 +234,25 @@ def start_main_game():
 
         '''Very funny jumpscare mechanism'''
         if select_jumpscare_flag: 
-            select_jumpscare = randint(1, 2)
-            # print(select_jumpscare)
+            select_jumpscare = randint(0, 1)
             select_jumpscare_flag = False
 
         # Render jumpscare conditions
-        if track_fail_attempts == 3 and not display_mikel_jumpscare: # display_mikey_jumpscare is initially False
-            display_mikel_jumpscare = True
-            mikel_jumpscare_sound.play()
-            mikel_jumpscare_sound.set_volume(volume)
+        if track_fail_attempts == 3 and not display_jumpscare: # display_jumpscare is initially False
+            display_jumpscare = True
+            jumpscare_sound.play()
+            jumpscare_sound.set_volume(volume)
             jumpscare_time = pygame.time.get_ticks() + 1000
         
         # Render the jumpscare image
-        if display_mikel_jumpscare:
-            screen.blit(mikel_jumpscare, (0, 0))
+        if display_jumpscare:
+            screen.blit(jumpscares[select_jumpscare], (0, 0))
             pygame.display.flip()  # Update the display to show the jumpscare image
             if pygame.time.get_ticks() >= jumpscare_time:
                 main_countdown_time -= randint(5, 10) # Random time penalty
                 track_fail_attempts = 0
-                display_mikel_jumpscare = False
+                select_jumpscare_flag = True
+                display_jumpscare = False
         
         # Render background
         screen.blit(image_bg, (0, 0))
@@ -295,7 +278,7 @@ def start_main_game():
             main_countdown_time -= decrement  # Ensure the countdown time is decremented when the player wins
             if main_countdown_time <= 10: main_countdown_time = randint(8, 12)  # Ensure minimum countdown time
             # print(main_countdown_time)
-            create_random_cards() # Start the game again
+            random.create_random_cards() # Start the game again
 
         '''Bonus time and time penalty system'''
         if track_success_attempts == 3:
@@ -312,11 +295,11 @@ def start_main_game():
         if seconds_left == 0 and display_final_jumpscare: 
             display_final_jumpscare = False
             jumpscare_time = pygame.time.get_ticks() + 3000
-            mikel_jumpscare_sound.play()
-            mikel_jumpscare_sound.set_volume(volume)
+            jumpscare_sound.play()
+            jumpscare_sound.set_volume(volume)
 
         if not display_final_jumpscare:
-            screen.blit(mikel_jumpscare, (0, 0))
+            screen.blit(jumpscares[select_jumpscare], (0, 0))
             lose_text = font_timer.render("You Lose!", True, (255, 0, 0))
             lose_text_rect = lose_text.get_rect(center=(500, 70))
             screen.blit(lose_text, lose_text_rect)
@@ -327,7 +310,7 @@ def start_main_game():
                 game_menu()
 
         pygame.display.flip()  # Update the display
-        clock.tick(FPS + 20) # make the fps bigger
+        clock.tick(FPS + 100) # make the fps bigger
 
 def options():
     while True:
@@ -341,13 +324,6 @@ def options():
 
         pygame.display.flip()
         clock.tick(FPS)
-
-# Mouse hover checker and mouse actions
-def mouse_hover_checker(button, mouse_pos):
-    if button.mouse_hover(mouse_pos):
-        button.render_text(screen, (173, 7, 255))  # Change color to purple when hovered
-    else:
-        button.render_text(screen)
     
 # Start the game menu
 game_menu()
