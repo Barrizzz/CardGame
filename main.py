@@ -19,10 +19,9 @@ FPS = 60
 image_bg = pygame.image.load("sprites/background.jpg")
 image_bg = pygame.transform.scale(image_bg, (1000, 600))
 
-# Mikel jumpscare
+# jumpscares
 mikel_jumpscare = pygame.image.load("sprites/mikel.jpg")
 mikel_jumpscare = pygame.transform.scale(mikel_jumpscare, (1000, 600))
-volume = 0.1
 
 # Card Back Image
 card_back_deck = pygame.image.load("sprites/card_back_cyan.png")
@@ -87,6 +86,7 @@ def game_menu():
         clock.tick(FPS)
 
 def create_random_cards():
+    """ ..."""
     global random_card_list, random_card_list_blit
 
     # Clear the lists before starting a new game
@@ -112,7 +112,7 @@ def start_animation():
     screen.blit(image_bg, (0, 0))
 
     # Animation loop for cards
-    for index, _ in enumerate(card_list):
+    for index in range(len(card_list)):
         target_pos = target_positions[index]
         card_pos = [450, 0]  # Start position for the animation
         animation_speed = [20, 20]  # Speed of the animation
@@ -121,6 +121,11 @@ def start_animation():
         card_animator = Cardanimation(card_pos, target_pos, animation_speed)
 
         while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+
             # Render background (keep it persistent)
             screen.blit(image_bg, (0, 0)) 
             # Calling the card_animation function from the Cardanimation
@@ -179,6 +184,7 @@ def memorize_cards():
         if seconds_left == 0: break
 
         pygame.display.flip()  # Update the display
+        clock.tick(FPS)
 
     # Start the main game
     start_main_game()
@@ -197,9 +203,11 @@ def start_main_game():
     track_fail_attempts = 0 # Track the successive fail attempts
     
     # Jumpscare variables
-    display_mikel_jumpscare = False
+    display_jumpscare = False
     display_final_jumpscare = True
     jumpscare_time = 0
+
+    select_jumpscare_flag = True
 
     # This is if the success attempt is three in a row, this is for checking if the success attempt reaches five in a row
     no_more_failures_attempts = False
@@ -241,11 +249,16 @@ def start_main_game():
             turn_card_back = False
 
         '''Very funny jumpscare mechanism'''
+        if select_jumpscare_flag: 
+            select_jumpscare = randint(1, 2)
+            # print(select_jumpscare)
+            select_jumpscare_flag = False
+
         # Render jumpscare conditions
         if track_fail_attempts == 3 and not display_mikel_jumpscare: # display_mikey_jumpscare is initially False
             display_mikel_jumpscare = True
             mikel_jumpscare_sound.play()
-            mikel_jumpscare_sound.set_volume(volume)
+            mikel_jumpscare_sound.set_volume(0.2)
             jumpscare_time = pygame.time.get_ticks() + 1000
         
         # Render the jumpscare image
@@ -277,7 +290,7 @@ def start_main_game():
         if all(open_card.flipped_cards) and pygame.time.get_ticks() >= waiting_time: # Check if flipped_cards list is all True and the waiting time is over, so that the last card can still be shown
             main_countdown_time = seconds_left # Calculate the remaining time to be set to the main time for the next round
             # print(main_countdown_time)
-            decrement = randint(4, 8) # Set the decrement when the user won, and starting the game again
+            decrement = 0 #randint(3, 5) # Set the decrement when the user won, and starting the game again
             main_countdown_time -= decrement  # Ensure the countdown time is decremented when the player wins
             if main_countdown_time <= 10: main_countdown_time = randint(8, 12)  # Ensure minimum countdown time
             # print(main_countdown_time)
@@ -289,7 +302,7 @@ def start_main_game():
             track_success_attempts = 0
             no_more_failures_attempts = True
         elif track_success_attempts == 2 and no_more_failures_attempts:
-            main_countdown_time += (10, 12)
+            main_countdown_time += randint(10, 12)
             track_success_attempts = 0
             no_more_failures_attempts = False
 
@@ -313,6 +326,7 @@ def start_main_game():
                 game_menu()
 
         pygame.display.flip()  # Update the display
+        clock.tick(FPS + 20) # make the fps bigger
 
 def options():
     while True:
