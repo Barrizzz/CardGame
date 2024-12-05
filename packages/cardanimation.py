@@ -1,6 +1,5 @@
 import pygame
 import sys
-from packages.card_randomizer import Cardrandomize
 pygame.init()
 
 class Cardanimation:

@@ -1,6 +1,5 @@
 import pygame, sys
 from random import randint
-
 from packages.menubuttons import Buttons
 from packages.title import Title
 from packages.cardanimation import Cardanimation
