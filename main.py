@@ -1,5 +1,4 @@
-import pygame
-import sys
+import pygame, sys
 from random import randint
 
 from packages.menubuttons import Buttons
@@ -23,6 +22,7 @@ image_bg = pygame.transform.scale(image_bg, (1000, 600))
 # Mikel jumpscare
 mikel_jumpscare = pygame.image.load("sprites/mikel.jpg")
 mikel_jumpscare = pygame.transform.scale(mikel_jumpscare, (1000, 600))
+volume = 0.1
 
 # Card Back Image
 card_back_deck = pygame.image.load("sprites/card_back_cyan.png")
@@ -245,7 +245,7 @@ def start_main_game():
         if track_fail_attempts == 3 and not display_mikel_jumpscare: # display_mikey_jumpscare is initially False
             display_mikel_jumpscare = True
             mikel_jumpscare_sound.play()
-            mikel_jumpscare_sound.set_volume(0.2)
+            mikel_jumpscare_sound.set_volume(volume)
             jumpscare_time = pygame.time.get_ticks() + 1000
         
         # Render the jumpscare image
@@ -299,7 +299,7 @@ def start_main_game():
             display_final_jumpscare = False
             jumpscare_time = pygame.time.get_ticks() + 3000
             mikel_jumpscare_sound.play()
-            mikel_jumpscare_sound.set_volume(0.3)
+            mikel_jumpscare_sound.set_volume(volume)
 
         if not display_final_jumpscare:
             screen.blit(mikel_jumpscare, (0, 0))
