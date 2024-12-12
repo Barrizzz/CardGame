@@ -54,7 +54,7 @@ start_button = Buttons(500, 300, "Start Game", font)
 options_button = Buttons(500, 370, "Options", font)
 quit_button = Buttons(500, 440, "Quit", font)
 
-main_time = 60 # Main countdown time in seconds
+main_time = 100 # Main countdown time in seconds
 main_countdown_time = main_time # This is to ensure that the initial countdown is 60 seconds
 
 # This is for sounds

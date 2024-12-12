@@ -4,20 +4,22 @@ pygame.init()
 
 class Cardrandomizer:
     def __init__(self, random_card_list, random_card_list_blit):
-        self.cardList = ['queen_of_clubs', 'jack_of_diamonds', '7_of_diamonds', 'ace_of_spades', 'ace_of_hearts', '10_of_hearts', 
-                        'ace_of_spades', 'ace_of_hearts', '10_of_hearts', 'jack_of_diamonds', 'queen_of_clubs',
-                        '7_of_diamonds'
-                        ]
+        self.suits = ["hearts", "diamonds", "clubs", "spades"]
+        self.ranks = ["ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "jack", "queen", "king"]
+        self.cardList = [f"{rank}_of_{suit}" for suit in self.suits for rank in self.ranks] + ["sal_card", "tal_card", "mikel_card", "bar_card"]
+        random.shuffle(self.cardList)
         
         self.random_card_list = random_card_list
         self.random_card_list_blit = random_card_list_blit
         
     def generate_random_card(self):
         randomlist = []
-        for _ in range(len(self.cardList)):
+        for _ in range(6):
             randomCard = random.choice(self.cardList)
             randomlist.append(randomCard)
-            self.cardList.remove(randomCard)        
+            self.cardList.remove(randomCard)
+        randomlist += randomlist
+        random.shuffle(randomlist)
         return randomlist
     
     def create_random_cards(self):
@@ -33,8 +35,8 @@ class Cardrandomizer:
         #print(self.random_card_list_blit)
         #print(self.random_card_list)
 
-#test = Cardrandomize()
-#test.create_random_cards()
+test = Cardrandomizer('1', '2')
+print(test.generate_random_card())
 
 
 
