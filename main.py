@@ -253,7 +253,7 @@ def start_main_game():
                 game_menu()
 
         pygame.display.flip()  # Update the display
-        clock.tick(FPS + 100) # make the fps bigger
+        clock.tick(FPS + 80) # make the fps bigger
 
 # Start the game menu
 game_menu()
