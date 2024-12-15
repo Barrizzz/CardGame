@@ -5,6 +5,7 @@ from packages.title import Title
 from packages.cardanimation import Cardanimation
 from packages.card_randomizer import Cardrandomizer
 from packages.showing_cards import Cardfaces
+from packages.jumpscares import Jumpscares
 pygame.init()
 pygame.mixer.init()
 
@@ -19,14 +20,10 @@ image_bg = pygame.image.load("sprites/background.jpg")
 image_bg = pygame.transform.scale(image_bg, (1000, 600))
 
 # jumpscares
-jumpscare_load = [pygame.image.load("sprites/mikel.jpg"), pygame.image.load("sprites/jason.png")]
-jumpscares = []
-for i in jumpscare_load:
-    jumpscares.append(pygame.transform.scale(i, (1000, 600)))
-#print(jumpscares)
+jumpscares = Jumpscares()
 
 #Volumes
-volume = 0.3
+volume = 0.1
 
 # Card Back Image
 card_back_deck = pygame.image.load("sprites/card_back_cyan.png")
@@ -60,7 +57,9 @@ main_countdown_time = main_time # This is to ensure that the initial countdown i
 # This is for sounds
 happy_quiz_music = pygame.mixer.Sound("sounds/happy_quiz.mp3")
 weird_music = pygame.mixer.Sound("sounds/weird_song.mp3")
+
 jumpscare_sound = pygame.mixer.Sound("sounds/ascending_jumpscare.mp3")
+jumpscare_sound2 = pygame.mixer.Sound("sounds/ah_hell_nah.mp3")
 plankton_funny = pygame.mixer.Sound("sounds/plankton_funny.mp3")
 
 def game_menu():
@@ -137,15 +136,12 @@ def start_main_game():
     track_success_attempts = 0 # Track the successive success attempts
     track_fail_attempts = 0 # Track the successive fail attempts
     
-    # Jumpscare variables
-    display_jumpscare = False
-    display_final_jumpscare = True
-    jumpscare_time = 0
-
-    select_jumpscare_flag = True
-
     # This is if the success attempt is three in a row, this is for checking if the success attempt reaches five in a row
     no_more_failures_attempts = False
+
+    # Jumpscares
+    jumpscare = Jumpscares()
+    display_jumpscare = False
 
     while True:
         card_rects = open_card.get_card_rect()  # Get the card rects
@@ -182,34 +178,20 @@ def start_main_game():
             open_card.set_flipped_cards(flipped_card_indexes[1], False)
             flipped_card_indexes.clear()
             turn_card_back = False
-
+        
         '''Very funny jumpscare mechanism'''
-        if select_jumpscare_flag: 
-            select_jumpscare = randint(0, 1)
-            select_jumpscare_flag = False
-
-        # Render jumpscare conditions
-        if track_fail_attempts == 3 and not display_jumpscare: # display_jumpscare is initially False
+        if track_fail_attempts == 3 and not display_jumpscare:
             display_jumpscare = True
-            happy_quiz_music.stop()
-            weird_music.stop()
-            jumpscare_sound.play()
-            jumpscare_sound.set_volume(volume)
-            jumpscare_time = pygame.time.get_ticks() + 1000
+            jumpscare_time = pygame.time.get_ticks() + 2000  
         
-        # Render the jumpscare image
+        if pygame.time.get_ticks() >= jumpscare_time:
+            display_jumpscare = False
+            track_fail_attempts = 0
+            track_success_attempts = 0
+
         if display_jumpscare:
-            screen.blit(jumpscares[select_jumpscare], (0, 0))
-            pygame.display.flip()  # Update the display to show the jumpscare image
-            if pygame.time.get_ticks() >= jumpscare_time:
-                main_countdown_time -= randint(5, 10) # Random time penalty
-                track_fail_attempts = 0
-                jumpscare_sound.stop()
-                weird_music.play()
-                weird_music.set_volume(volume)
-                select_jumpscare_flag = True
-                display_jumpscare = False
-        
+            jumpscare.display_jumpscare(screen)
+
         # Render background
         screen.blit(image_bg, (0, 0))
         # Render all cards
@@ -225,16 +207,7 @@ def start_main_game():
         timer_text_rect = timer_text.get_rect(center=(500, 70))  # get the rect of the text and centers it to (500, 70)
         screen.blit(timer_text, timer_text_rect)  # Draw the timer text
 
-        '''This is if the player won'''
-        # Start the game again if all the cards are facing up
-        if all(open_card.flipped_cards) and pygame.time.get_ticks() >= waiting_time: # Check if flipped_cards list is all True and the waiting time is over, so that the last card can still be shown
-            main_countdown_time = seconds_left # Calculate the remaining time to be set to the main time for the next round
-            decrement = 0 #randint(3, 5) # Set the decrement when the user won, and starting the game again
-            main_countdown_time -= decrement  # Ensure the countdown time is decremented when the player wins
-            if main_countdown_time <= 10: main_countdown_time = randint(8, 12)  # Ensure minimum countdown time
-            start_main_game()  # Restart the game
-
-        '''Bonus time and time penalty system'''
+        # Bonus time and time penalty system 
         if track_success_attempts == 3:
             main_countdown_time += randint(4, 7) 
             track_success_attempts = 0
@@ -244,18 +217,28 @@ def start_main_game():
             track_success_attempts = 0
             no_more_failures_attempts = False
 
+        '''This is if the player won'''
+        # Start the game again if all the cards are facing up
+        if all(open_card.flipped_cards) and pygame.time.get_ticks() >= waiting_time: # Check if flipped_cards list is all True and the waiting time is over, so that the last card can still be shown
+            main_countdown_time = seconds_left # Calculate the remaining time to be set to the main time for the next round
+            decrement = 0 #randint(3, 5) # Set the decrement when the user won, and starting the game again
+            main_countdown_time -= decrement  # Ensure the countdown time is decremented when the player wins
+            if main_countdown_time <= 10: main_countdown_time = randint(8, 12)  # Ensure minimum countdown time
+            start_main_game()  # Restart the game
+
         '''This is if the timer ran out (Player lose)'''
         # Break the loop when countdown reaches zero
-        if seconds_left == 0 and display_final_jumpscare and not all(open_card.flipped_cards): 
-            display_final_jumpscare = False
+        if seconds_left == 0 and not display_jumpscare and not all(open_card.flipped_cards): 
+            display_jumpscare = True
             jumpscare_time = pygame.time.get_ticks() + 5000
-            happy_quiz_music.stop()
-            weird_music.stop()
-            plankton_funny.play()
-            plankton_funny.set_volume(volume + 1)
 
-        if not display_final_jumpscare:
-            screen.blit(jumpscares[select_jumpscare], (0, 0))
+            # Stop all the background music
+            happy_quiz_music.stop() 
+            weird_music.stop()
+            jumpscare.play_jumpscare_sound(2)
+
+        if display_jumpscare:
+            jumpscare.display_jumpscare(screen, select_jumpscare)
             lose_text = font_timer.render("You Lose!", True, (255, 0, 0))
             lose_text_rect = lose_text.get_rect(center=(500, 70))
             screen.blit(lose_text, lose_text_rect)
