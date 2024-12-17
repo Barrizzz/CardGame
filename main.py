@@ -195,7 +195,7 @@ def start_main_game():
                                 track_success_attempts = 0
                                 no_more_failures_attempts = False
 
-        # Turn back non-matching cards after a delay
+        '''Turn back non-matching cards after a delay'''
         if turn_card_back and pygame.time.get_ticks() >= turning_time:
             open_card.set_flipped_cards(flipped_card_indexes[0], False)
             open_card.set_flipped_cards(flipped_card_indexes[1], False)
@@ -229,11 +229,11 @@ def start_main_game():
                 weird_music.play(loops = -1)
                 weird_music.set_volume(volume + 0.3)
 
-        # Render background and cards
+        # Render background and cards (This creates the flickering jumpscare effect, since the card is being rendered after the jumpscare), fun fact it was initially a bug but then I decided to use it :)
         screen.blit(image_bg, (0, 0))
         open_card.render_cards()
 
-        '''This is all about the time management'''
+        '''This is all about time management and the countdown timer'''
         # Calculate remaining time
         seconds_left = main_countdown_time - (pygame.time.get_ticks() - start_ticks) // 1000
         if seconds_left < 0: seconds_left = 0
@@ -255,7 +255,7 @@ def start_main_game():
         timer_text_rect = timer_text.get_rect(center=(500, 70))  # get the rect of the text and centers it to (500, 70)
         screen.blit(timer_text, timer_text_rect)  # Draw the timer text
 
-        # Bonus time and time penalty system 
+        '''Bonus time and time penalty system'''
         if track_success_attempts == 3:
             main_countdown_time += rnd.randint(4, 7) # Add bonus time between (4-7), for 3 successive success attempts
             track_success_attempts = 0
