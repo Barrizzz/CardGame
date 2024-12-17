@@ -258,7 +258,7 @@ def start_main_game():
             track_success_attempts = 0
             no_more_failures_attempts = False
 
-        '''Some logic on the music and countdown text'''
+        '''Some logic on the countdown music'''
         if seconds_left <= 30 and seconds_left > 20:
             happy_quiz_music.stop()
             weird_music.stop()
