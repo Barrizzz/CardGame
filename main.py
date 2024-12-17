@@ -1,5 +1,5 @@
+import random as rnd
 import pygame, sys
-from random import randint
 from packages.menubuttons import Buttons
 from packages.title import Title
 from packages.cardanimation import Cardanimation
@@ -19,10 +19,7 @@ FPS = 60
 image_bg = pygame.image.load("sprites/background.jpg")
 image_bg = pygame.transform.scale(image_bg, (1000, 600))
 
-# jumpscares
-jumpscares = Jumpscares()
-
-#Volumes
+# Main volume
 volume = 0.1
 
 # Card Back Image
@@ -51,7 +48,7 @@ start_button = Buttons(500, 300, "Start Game", font)
 options_button = Buttons(500, 370, "Options", font)
 quit_button = Buttons(500, 440, "Quit", font)
 
-main_time = 60 # Main countdown time in seconds
+main_time = 10 # Main countdown time in seconds
 main_countdown_time = main_time # This is to ensure that the initial countdown is 60 seconds
 
 # This is for sounds
@@ -140,8 +137,11 @@ def start_main_game():
     no_more_failures_attempts = False
 
     # Jumpscares
-    jumpscare = Jumpscares()
+    jumpscare = Jumpscares(volume)
     display_jumpscare = False
+    display_final_jumpscare = False
+    jumpscare_time = 0  # Initialize jumpscare_time
+    death_screen = None  # Initialize death_screen variable
 
     while True:
         card_rects = open_card.get_card_rect()  # Get the card rects
@@ -152,7 +152,7 @@ def start_main_game():
                 pygame.quit()
                 sys.exit()
 
-            elif event.type == pygame.MOUSEBUTTONDOWN and not turn_card_back:
+            elif event.type == pygame.MOUSEBUTTONDOWN and not turn_card_back and not display_jumpscare:
                 for i, rect in enumerate(card_rects):
                     if rect.collidepoint(mouse_pos) and not open_card.flipped_cards[i]:
                         open_card.set_flipped_cards(i)
@@ -182,15 +182,17 @@ def start_main_game():
         '''Very funny jumpscare mechanism'''
         if track_fail_attempts == 3 and not display_jumpscare:
             display_jumpscare = True
-            jumpscare_time = pygame.time.get_ticks() + 2000  
-        
-        if pygame.time.get_ticks() >= jumpscare_time:
-            display_jumpscare = False
-            track_fail_attempts = 0
-            track_success_attempts = 0
+            decrement = rnd.randint(3, 5)  # Set the decrement when the user fails
+            main_countdown_time -= decrement
+            jumpscare_time = pygame.time.get_ticks() + 2000  # Set jumpscare display duration
 
         if display_jumpscare:
             jumpscare.display_jumpscare(screen)
+            if pygame.time.get_ticks() >= jumpscare_time:
+                display_jumpscare = False
+                jumpscare.reset_jumpscare()
+                track_fail_attempts = 0
+                track_success_attempts = 0
 
         # Render background
         screen.blit(image_bg, (0, 0))
@@ -209,11 +211,11 @@ def start_main_game():
 
         # Bonus time and time penalty system 
         if track_success_attempts == 3:
-            main_countdown_time += randint(4, 7) 
+            main_countdown_time += rnd.randint(4, 7) # Add bonus time between (4-7), for 3 successive success attempts
             track_success_attempts = 0
             no_more_failures_attempts = True
         elif track_success_attempts == 2 and no_more_failures_attempts:
-            main_countdown_time += randint(10, 12)
+            main_countdown_time += rnd.randint(10, 12) # Add bonus time between (10-12), for 5 successive success attempts
             track_success_attempts = 0
             no_more_failures_attempts = False
 
@@ -223,29 +225,34 @@ def start_main_game():
             main_countdown_time = seconds_left # Calculate the remaining time to be set to the main time for the next round
             decrement = 0 #randint(3, 5) # Set the decrement when the user won, and starting the game again
             main_countdown_time -= decrement  # Ensure the countdown time is decremented when the player wins
-            if main_countdown_time <= 10: main_countdown_time = randint(8, 12)  # Ensure minimum countdown time
+            if main_countdown_time <= 10: main_countdown_time = rnd.randint(8, 12)  # Ensure minimum countdown time
             start_main_game()  # Restart the game
 
         '''This is if the timer ran out (Player lose)'''
         # Break the loop when countdown reaches zero
-        if seconds_left == 0 and not display_jumpscare and not all(open_card.flipped_cards): 
-            display_jumpscare = True
+        if seconds_left == 0 and not display_final_jumpscare and not all(open_card.flipped_cards): 
+            display_final_jumpscare = True
             jumpscare_time = pygame.time.get_ticks() + 5000
-
+            if death_screen is None:
+                death_screen = jumpscare.get_death_screen()  # Store the death screen image
+                plankton_funny.play()
+            
             # Stop all the background music
             happy_quiz_music.stop() 
             weird_music.stop()
-            jumpscare.play_jumpscare_sound(2)
 
-        if display_jumpscare:
-            jumpscare.display_jumpscare(screen, select_jumpscare)
+        if display_final_jumpscare:
+            screen.blit(death_screen, (0, 0))  # Use the stored death screen image
+            
             lose_text = font_timer.render("You Lose!", True, (255, 0, 0))
             lose_text_rect = lose_text.get_rect(center=(500, 70))
             screen.blit(lose_text, lose_text_rect)
             if pygame.time.get_ticks() >= jumpscare_time:
                 display_final_jumpscare = False
+                jumpscare.reset_jumpscare()
                 main_countdown_time = main_time
                 decrement = 0
+                plankton_funny.stop()
                 game_menu()
 
         pygame.display.flip()  # Update the display
