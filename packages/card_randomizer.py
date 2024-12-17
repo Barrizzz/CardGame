@@ -35,8 +35,8 @@ class Cardrandomizer:
         #print(self.random_card_list_blit)
         #print(self.random_card_list)
 
-test = Cardrandomizer('1', '2')
-print(test.generate_random_card())
+#test = Cardrandomizer('1', '2')
+#print(test.generate_random_card())
 
 
 

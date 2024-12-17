@@ -48,7 +48,7 @@ start_button = Buttons(500, 300, "Start Game", font)
 options_button = Buttons(500, 370, "Options", font)
 quit_button = Buttons(500, 440, "Quit", font)
 
-main_time = 10 # Main countdown time in seconds
+main_time = 60 # Main countdown time in seconds
 main_countdown_time = main_time # This is to ensure that the initial countdown is 60 seconds
 
 # This is for sounds
@@ -60,6 +60,7 @@ jumpscare_sound2 = pygame.mixer.Sound("sounds/ah_hell_nah.mp3")
 plankton_funny = pygame.mixer.Sound("sounds/plankton_funny.mp3")
 
 def game_menu():
+    # Play the main music
     happy_quiz_music.play()
     happy_quiz_music.set_volume(volume)
 
@@ -143,6 +144,9 @@ def start_main_game():
     jumpscare_time = 0  # Initialize jumpscare_time
     death_screen = None  # Initialize death_screen variable
 
+    jumpscareType2 = False  # Add a flag to control the display flip
+    fadeout_alpha = 255  # Initialize fadeout alpha value
+
     while True:
         card_rects = open_card.get_card_rect()  # Get the card rects
         mouse_pos = pygame.mouse.get_pos()  # Update mouse position
@@ -179,6 +183,12 @@ def start_main_game():
             flipped_card_indexes.clear()
             turn_card_back = False
         
+        '''Some logic on the music'''
+        if main_countdown_time <= 20:
+            happy_quiz_music.stop()
+            weird_music.play()
+            weird_music.set_volume(volume + 0.3)
+
         '''Very funny jumpscare mechanism'''
         if track_fail_attempts == 3 and not display_jumpscare:
             display_jumpscare = True
@@ -187,16 +197,27 @@ def start_main_game():
             jumpscare_time = pygame.time.get_ticks() + 2000  # Set jumpscare display duration
 
         if display_jumpscare:
-            jumpscare.display_jumpscare(screen)
+            # Stop all the background music
+            happy_quiz_music.stop()
+            weird_music.stop()
+
+            # Finding the jumpscare type according to the music played
+            if jumpscare.current_sound_name != 'ah_hell_nah.mp3': # This is assumed as jumpscareType1
+                jumpscare.display_jumpscare(screen)
+                pygame.display.flip()
+            else:
+                jumpscareType2 = True
+
             if pygame.time.get_ticks() >= jumpscare_time:
                 display_jumpscare = False
                 jumpscare.reset_jumpscare()
                 track_fail_attempts = 0
                 track_success_attempts = 0
+                weird_music.play()
+                weird_music.set_volume(volume + 0.3)
 
-        # Render background
+        # Render background and cards
         screen.blit(image_bg, (0, 0))
-        # Render all cards
         open_card.render_cards()
 
         '''This is all about the time management'''
@@ -219,6 +240,26 @@ def start_main_game():
             track_success_attempts = 0
             no_more_failures_attempts = False
 
+        '''More about jumpscare mechanism'''
+        if jumpscareType2:
+            jumpscare.display_jumpscare(screen)
+            # Fadeout effect
+            if fadeout_alpha > 0:
+                fadeout_surface = pygame.Surface((1000, 600))
+                fadeout_surface.set_alpha(fadeout_alpha)
+                fadeout_surface.fill((0, 0, 0))
+                screen.blit(fadeout_surface, (0, 0))
+                fadeout_alpha -= 5  # Decrease alpha value for each iteration, creating a fadeout effect
+            if pygame.time.get_ticks() >= (jumpscare_time - 200): # Make the jumpscare time a little faster
+                display_jumpscare = False
+                jumpscareType2 = False
+                jumpscare.reset_jumpscare()
+                track_fail_attempts = 0
+                track_success_attempts = 0
+                weird_music.play()
+                weird_music.set_volume(volume + 0.3)
+                fadeout_alpha = 255  # Reset the fadeout alpha when jumpscare is done
+
         '''This is if the player won'''
         # Start the game again if all the cards are facing up
         if all(open_card.flipped_cards) and pygame.time.get_ticks() >= waiting_time: # Check if flipped_cards list is all True and the waiting time is over, so that the last card can still be shown
@@ -230,9 +271,14 @@ def start_main_game():
 
         '''This is if the timer ran out (Player lose)'''
         # Break the loop when countdown reaches zero
-        if seconds_left == 0 and not display_final_jumpscare and not all(open_card.flipped_cards): 
+        if seconds_left == 0 and not display_final_jumpscare and not all(open_card.flipped_cards):
+            track_fail_attempts = 0 # So that if the user is in a jumpscare phase, it will exit it in the next iteration
+            if display_jumpscare: display_jumpscare = False # Same as before, so that the death screen and the flickering jumpscare does not collide
+            
+            jumpscare.stop_jumpscare_sounds()
             display_final_jumpscare = True
             jumpscare_time = pygame.time.get_ticks() + 5000
+            
             if death_screen is None:
                 death_screen = jumpscare.get_death_screen()  # Store the death screen image
                 plankton_funny.play()
@@ -242,18 +288,20 @@ def start_main_game():
             weird_music.stop()
 
         if display_final_jumpscare:
-            screen.blit(death_screen, (0, 0))  # Use the stored death screen image
-            
+            # Blit the image and text
+            screen.blit(death_screen, (0, 0))  
             lose_text = font_timer.render("You Lose!", True, (255, 0, 0))
             lose_text_rect = lose_text.get_rect(center=(500, 70))
             screen.blit(lose_text, lose_text_rect)
+
+            # If the current game tick is bigger than the jumpscare_time which is 5 seconds
             if pygame.time.get_ticks() >= jumpscare_time:
-                display_final_jumpscare = False
-                jumpscare.reset_jumpscare()
-                main_countdown_time = main_time
-                decrement = 0
-                plankton_funny.stop()
-                game_menu()
+                display_final_jumpscare = False # Stop the parent if statement
+                jumpscare.reset_jumpscare() # Stop the death screen
+                main_countdown_time = main_time # Set the countdown time back to the main time, because we are going to go back to the main menu
+                decrement = 0 # Set the decrement back to zero
+                plankton_funny.stop() # Stop the sound
+                game_menu() # Go back to main menu
 
         pygame.display.flip()  # Update the display
         clock.tick(FPS + 80) # make the fps bigger

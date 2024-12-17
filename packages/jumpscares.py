@@ -5,7 +5,7 @@ pygame.init()
 class Jumpscares:
     def __init__(self, volume):
         self.volume = volume
-        self.jumpscare_list = ['jason.png', 'mikel.jpg']
+        self.jumpscare_list = ['jason.png', 'mikel.jpg', 'cardface/tal_card.png', 'cardface/mikel_card.png']
         self.jumpscare_sounds = ['ah_hell_nah.mp3', 'ascending_jumpscare.mp3']
 
         self.jumpscares = [pygame.image.load(f"sprites/{img}") for img in self.jumpscare_list]
@@ -14,32 +14,37 @@ class Jumpscares:
 
         self.current_jumpscare = None
         self.current_sound = None
+        self.current_sound_name = None
 
     def display_jumpscare(self, screen):
+        index1 = random.randint(0, len(self.jumpscare_list) - 1)
+        index2 = random.randint(0, len(self.jumpscare_sounds) - 1)
         if self.current_jumpscare is None:
-            index1 = random.randint(0, len(self.jumpscare_list) - 1)
-            index2 = random.randint(0, len(self.jumpscare_sounds) - 1)
             self.current_jumpscare = self.jumpscares[index1]
             self.current_sound = self.sounds[index2]
+            self.current_sound_name = self.jumpscare_sounds[index2]
             self.current_sound.play()
-            if self.jumpscare_sounds[index2] == 'ah_hell_nah.mp3':
+            if self.current_sound_name == 'ah_hell_nah.mp3':
                 self.current_sound.set_volume(self.volume + 1)  # Make the volume bigger for this specific sound since it is quiet
             else:
                 self.current_sound.set_volume(self.volume) # For the rest use the volume in the main.py
-        screen.blit(self.current_jumpscare, (0, 0))
-        pygame.display.flip()
+        return screen.blit(self.current_jumpscare, (0, 0))
+    
+    def display_good_jumpscare(self, screen):
+        pass
 
     def reset_jumpscare(self):
         if self.current_sound:
             self.current_sound.stop()
         self.current_jumpscare = None
         self.current_sound = None
+        self.current_sound_name = None
 
     def get_death_screen(self):
         index = random.randint(0, len(self.jumpscare_list) - 1)
         death_screen = self.jumpscares[index]
         return death_screen
 
-    def stop_all_sounds(self):
+    def stop_jumpscare_sounds(self):
         for sound in self.sounds:
             sound.stop()
