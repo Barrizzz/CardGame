@@ -48,7 +48,7 @@ start_button = Buttons(500, 300, "Start Game", font)
 options_button = Buttons(500, 370, "Options", font)
 quit_button = Buttons(500, 440, "Quit", font)
 
-main_time = 12 # Main countdown time in seconds
+main_time = 60 # Main countdown time in seconds
 main_countdown_time = main_time # This is to ensure that the initial countdown is 60 seconds
 
 # This is for sounds
@@ -62,13 +62,15 @@ countdown_20sec = pygame.mixer.Sound("sounds/20_second_countdwn.mp3")
 countdown_10sec = pygame.mixer.Sound("sounds/10_second_countdwn.mp3")
 countdown_5sec = pygame.mixer.Sound("sounds/5_second_countdwn.mp3")
 
+current_countdown_sound = None
+
 jumpscare_sound = pygame.mixer.Sound("sounds/ascending_jumpscare.mp3")
 jumpscare_sound2 = pygame.mixer.Sound("sounds/ah_hell_nah.mp3")
 plankton_funny = pygame.mixer.Sound("sounds/plankton_funny.mp3")
 
 def game_menu():
     # Play the main music
-    happy_quiz_music.play()
+    happy_quiz_music.play(loops = -1)
     happy_quiz_music.set_volume(volume)
 
     while True:
@@ -111,7 +113,7 @@ def options():
         clock.tick(FPS)
     
 def start_main_game():
-    global main_countdown_time, main_time, decrement
+    global main_countdown_time, main_time, decrement, current_countdown_sound
 
     # Start Animations
     animation = Cardanimation()
@@ -154,9 +156,6 @@ def start_main_game():
     jumpscareType2 = False  # Add a flag to control the display flip
     fadeout_alpha = 255  # Initialize fadeout alpha value
 
-    current_countdown_sound = None  # Track the currently playing countdown sound
-
-    pulse_direction = -5  # Initialize pulse direction
     pulse_size = 60  # Initialize pulse size
     pulse_size_direction = 1  # Initialize pulse size direction
 
@@ -220,7 +219,7 @@ def start_main_game():
                 jumpscare.reset_jumpscare()
                 track_fail_attempts = 0
                 track_success_attempts = 0
-                weird_music.play()
+                weird_music.play(loops = -1)
                 weird_music.set_volume(volume + 0.3)
 
         # Render background and cards
@@ -266,7 +265,7 @@ def start_main_game():
             if current_countdown_sound != countdown_30sec:
                 if current_countdown_sound:
                     current_countdown_sound.stop()
-                countdown_30sec.play()
+                countdown_30sec.play(loops = -1)
                 countdown_30sec.set_volume(volume + 0.3)
                 current_countdown_sound = countdown_30sec
         elif seconds_left <= 20 and seconds_left > 10:
@@ -275,7 +274,7 @@ def start_main_game():
             if current_countdown_sound != countdown_20sec:
                 if current_countdown_sound:
                     current_countdown_sound.stop()
-                countdown_20sec.play()
+                countdown_20sec.play(loops = -1)
                 countdown_20sec.set_volume(volume + 0.3)
                 current_countdown_sound = countdown_20sec
         elif seconds_left <= 10 and seconds_left > 5:
@@ -284,7 +283,7 @@ def start_main_game():
             if current_countdown_sound != countdown_10sec:
                 if current_countdown_sound:
                     current_countdown_sound.stop()
-                countdown_10sec.play()
+                countdown_10sec.play(loops = -1)
                 countdown_10sec.set_volume(volume + 0.3)
                 current_countdown_sound = countdown_10sec
         elif seconds_left <= 5 and seconds_left > 0:
@@ -293,7 +292,7 @@ def start_main_game():
             if current_countdown_sound != countdown_5sec: # Check if the current countdown is not the same, so that the logic in this if statement on iterates once
                 if current_countdown_sound: # Check if there is a countdown sound playing
                     current_countdown_sound.stop() # Stop it once
-                countdown_5sec.play()
+                countdown_5sec.play(loops = -1)
                 countdown_5sec.set_volume(volume + 0.3)
                 current_countdown_sound = countdown_5sec
         elif seconds_left == 0:
@@ -317,7 +316,7 @@ def start_main_game():
                 jumpscare.reset_jumpscare()
                 track_fail_attempts = 0
                 track_success_attempts = 0
-                weird_music.play()
+                weird_music.play(loops = -1)
                 weird_music.set_volume(volume + 0.3)
                 fadeout_alpha = 255  # Reset the fadeout alpha when jumpscare is done
 
