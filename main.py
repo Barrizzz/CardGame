@@ -48,12 +48,19 @@ start_button = Buttons(500, 300, "Start Game", font)
 options_button = Buttons(500, 370, "Options", font)
 quit_button = Buttons(500, 440, "Quit", font)
 
-main_time = 60 # Main countdown time in seconds
+main_time = 12 # Main countdown time in seconds
 main_countdown_time = main_time # This is to ensure that the initial countdown is 60 seconds
 
 # This is for sounds
 happy_quiz_music = pygame.mixer.Sound("sounds/happy_quiz.mp3")
 weird_music = pygame.mixer.Sound("sounds/weird_song.mp3")
+let_it_snow = pygame.mixer.Sound("sounds/let_it_snow.mp3")
+thick_of_it = pygame.mixer.Sound("sounds/ThickOfIt_Jazz.mp3")
+
+countdown_30sec = pygame.mixer.Sound("sounds/30_second_countdwn.mp3")
+countdown_20sec = pygame.mixer.Sound("sounds/20_second_countdwn.mp3")
+countdown_10sec = pygame.mixer.Sound("sounds/10_second_countdwn.mp3")
+countdown_5sec = pygame.mixer.Sound("sounds/5_second_countdwn.mp3")
 
 jumpscare_sound = pygame.mixer.Sound("sounds/ascending_jumpscare.mp3")
 jumpscare_sound2 = pygame.mixer.Sound("sounds/ah_hell_nah.mp3")
@@ -147,6 +154,12 @@ def start_main_game():
     jumpscareType2 = False  # Add a flag to control the display flip
     fadeout_alpha = 255  # Initialize fadeout alpha value
 
+    current_countdown_sound = None  # Track the currently playing countdown sound
+
+    pulse_direction = -5  # Initialize pulse direction
+    pulse_size = 60  # Initialize pulse size
+    pulse_size_direction = 1  # Initialize pulse size direction
+
     while True:
         card_rects = open_card.get_card_rect()  # Get the card rects
         mouse_pos = pygame.mouse.get_pos()  # Update mouse position
@@ -182,12 +195,6 @@ def start_main_game():
             open_card.set_flipped_cards(flipped_card_indexes[1], False)
             flipped_card_indexes.clear()
             turn_card_back = False
-        
-        '''Some logic on the music'''
-        if main_countdown_time <= 20:
-            happy_quiz_music.stop()
-            weird_music.play()
-            weird_music.set_volume(volume + 0.3)
 
         '''Very funny jumpscare mechanism'''
         if track_fail_attempts == 3 and not display_jumpscare:
@@ -225,8 +232,20 @@ def start_main_game():
         seconds_left = main_countdown_time - (pygame.time.get_ticks() - start_ticks) // 1000
         if seconds_left < 0: seconds_left = 0
 
-        # Render the countdown timer at the middle top
-        timer_text = font_timer.render(str(seconds_left), True, (255, 255, 255))
+        # Render the countdown timer at the middle top with pulsing effect for the last 10 seconds
+        if seconds_left <= 10: # If the time is less than 10 seconds
+            if seconds_left <= 5: # Condition for the last 5 seconds
+                pulse_size += pulse_size_direction * 2  # By multiplying by two, it means the time it takes for the font to get big is faster
+            else:
+                pulse_size += pulse_size_direction # For each iteration the pulse size (basically the font size) will be added by 1 or subtracted by 1
+
+            if pulse_size <= 60 or pulse_size >= 100: # If the pulse size reaches 100 or more, it will be subtraction else addition
+                pulse_size_direction *= -1
+
+            font_timer_pulse = pygame.font.Font("fonts/eurostile.ttf", pulse_size)
+            timer_text = font_timer_pulse.render(str(seconds_left), True, (255, 0, 0))
+        else:
+            timer_text = font_timer.render(str(seconds_left), True, (255, 255, 255))
         timer_text_rect = timer_text.get_rect(center=(500, 70))  # get the rect of the text and centers it to (500, 70)
         screen.blit(timer_text, timer_text_rect)  # Draw the timer text
 
@@ -239,6 +258,48 @@ def start_main_game():
             main_countdown_time += rnd.randint(10, 12) # Add bonus time between (10-12), for 5 successive success attempts
             track_success_attempts = 0
             no_more_failures_attempts = False
+
+        '''Some logic on the music and countdown text'''
+        if seconds_left <= 30 and seconds_left > 20:
+            happy_quiz_music.stop()
+            weird_music.stop()
+            if current_countdown_sound != countdown_30sec:
+                if current_countdown_sound:
+                    current_countdown_sound.stop()
+                countdown_30sec.play()
+                countdown_30sec.set_volume(volume + 0.3)
+                current_countdown_sound = countdown_30sec
+        elif seconds_left <= 20 and seconds_left > 10:
+            happy_quiz_music.stop()
+            weird_music.stop()
+            if current_countdown_sound != countdown_20sec:
+                if current_countdown_sound:
+                    current_countdown_sound.stop()
+                countdown_20sec.play()
+                countdown_20sec.set_volume(volume + 0.3)
+                current_countdown_sound = countdown_20sec
+        elif seconds_left <= 10 and seconds_left > 5:
+            happy_quiz_music.stop()
+            weird_music.stop()
+            if current_countdown_sound != countdown_10sec:
+                if current_countdown_sound:
+                    current_countdown_sound.stop()
+                countdown_10sec.play()
+                countdown_10sec.set_volume(volume + 0.3)
+                current_countdown_sound = countdown_10sec
+        elif seconds_left <= 5 and seconds_left > 0:
+            happy_quiz_music.stop()
+            weird_music.stop()
+            if current_countdown_sound != countdown_5sec: # Check if the current countdown is not the same, so that the logic in this if statement on iterates once
+                if current_countdown_sound: # Check if there is a countdown sound playing
+                    current_countdown_sound.stop() # Stop it once
+                countdown_5sec.play()
+                countdown_5sec.set_volume(volume + 0.3)
+                current_countdown_sound = countdown_5sec
+        elif seconds_left == 0:
+            if current_countdown_sound:
+                current_countdown_sound.stop()
+
 
         '''More about jumpscare mechanism'''
         if jumpscareType2:
