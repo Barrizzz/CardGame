@@ -52,12 +52,16 @@ main_time = 60 # Main countdown time in seconds
 main_countdown_time = main_time # This is to ensure that the initial countdown is 60 seconds
 
 # This is for sounds
-happy_quiz_music = pygame.mixer.Sound("sounds/happy_quiz.mp3")
-weird_music = pygame.mixer.Sound("sounds/weird_song.mp3")
+main_music = pygame.mixer.Sound("sounds/happy_quiz.mp3")
 let_it_snow = pygame.mixer.Sound("sounds/let_it_snow.mp3")
 thick_of_it = pygame.mixer.Sound("sounds/ThickOfIt_Jazz.mp3")
 
-countdown_30sec = pygame.mixer.Sound("sounds/30_second_countdwn.mp3")
+main_music_list = [main_music, let_it_snow, thick_of_it]
+main_music = None
+
+weird_music = pygame.mixer.Sound("sounds/weird_song.mp3")
+
+countdown_25sec = pygame.mixer.Sound("sounds/25_second_countdwn.mp3")
 countdown_20sec = pygame.mixer.Sound("sounds/20_second_countdwn.mp3")
 countdown_10sec = pygame.mixer.Sound("sounds/10_second_countdwn.mp3")
 countdown_5sec = pygame.mixer.Sound("sounds/5_second_countdwn.mp3")
@@ -69,9 +73,12 @@ jumpscare_sound2 = pygame.mixer.Sound("sounds/ah_hell_nah.mp3")
 plankton_funny = pygame.mixer.Sound("sounds/plankton_funny.mp3")
 
 def game_menu():
+    global main_music
+
     # Play the main music
-    happy_quiz_music.play(loops = -1)
-    happy_quiz_music.set_volume(volume)
+    main_music = rnd.choice(main_music_list)
+    main_music.play(loops = -1)
+    main_music.set_volume(volume + 0.2)
 
     while True:
         mouse_pos = pygame.mouse.get_pos()  # Update mouse position
@@ -113,7 +120,7 @@ def options():
         clock.tick(FPS)
     
 def start_main_game():
-    global main_countdown_time, main_time, decrement, current_countdown_sound
+    global main_countdown_time, main_time, decrement, current_countdown_sound, main_music
 
     # Start Animations
     animation = Cardanimation()
@@ -204,7 +211,7 @@ def start_main_game():
 
         if display_jumpscare:
             # Stop all the background music
-            happy_quiz_music.stop()
+            main_music.stop()
             weird_music.stop()
 
             # Finding the jumpscare type according to the music played
@@ -259,17 +266,17 @@ def start_main_game():
             no_more_failures_attempts = False
 
         '''Some logic on the countdown music'''
-        if seconds_left <= 30 and seconds_left > 20:
-            happy_quiz_music.stop()
+        if seconds_left <= 25 and seconds_left > 20:
+            main_music.stop()
             weird_music.stop()
-            if current_countdown_sound != countdown_30sec:
+            if current_countdown_sound != countdown_25sec:
                 if current_countdown_sound:
                     current_countdown_sound.stop()
-                countdown_30sec.play(loops = -1)
-                countdown_30sec.set_volume(volume + 0.3)
-                current_countdown_sound = countdown_30sec
+                countdown_25sec.play(loops = -1)
+                countdown_25sec.set_volume(volume + 0.3)
+                current_countdown_sound = countdown_25sec
         elif seconds_left <= 20 and seconds_left > 10:
-            happy_quiz_music.stop()
+            main_music.stop()
             weird_music.stop()
             if current_countdown_sound != countdown_20sec:
                 if current_countdown_sound:
@@ -278,7 +285,7 @@ def start_main_game():
                 countdown_20sec.set_volume(volume + 0.3)
                 current_countdown_sound = countdown_20sec
         elif seconds_left <= 10 and seconds_left > 5:
-            happy_quiz_music.stop()
+            main_music.stop()
             weird_music.stop()
             if current_countdown_sound != countdown_10sec:
                 if current_countdown_sound:
@@ -287,18 +294,17 @@ def start_main_game():
                 countdown_10sec.set_volume(volume + 0.3)
                 current_countdown_sound = countdown_10sec
         elif seconds_left <= 5 and seconds_left > 0:
-            happy_quiz_music.stop()
+            main_music.stop()
             weird_music.stop()
             if current_countdown_sound != countdown_5sec: # Check if the current countdown is not the same, so that the logic in this if statement on iterates once
                 if current_countdown_sound: # Check if there is a countdown sound playing
                     current_countdown_sound.stop() # Stop it once
                 countdown_5sec.play(loops = -1)
-                countdown_5sec.set_volume(volume + 0.3)
+                countdown_5sec.set_volume(volume + 0.4)
                 current_countdown_sound = countdown_5sec
         elif seconds_left == 0:
             if current_countdown_sound:
                 current_countdown_sound.stop()
-
 
         '''More about jumpscare mechanism'''
         if jumpscareType2:
@@ -344,7 +350,7 @@ def start_main_game():
                 plankton_funny.play()
             
             # Stop all the background music
-            happy_quiz_music.stop() 
+            main_music.stop() 
             weird_music.stop()
 
         if display_final_jumpscare:
