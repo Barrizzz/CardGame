@@ -4,13 +4,14 @@ pygame.init()
 
 class Cardanimation:
     def __init__(self):
-        self.target_pos = 0
+        self.target_pos = None
         self.card_pos = [450, 0]
         self.animation_speed = [20, 20]
         self.clock = pygame.time.Clock()
         self.FPS = 60
 
     def card_animation(self):
+        # Calculate the difference or the delta
         delta_x = self.target_pos[0] - self.card_pos[0]
         delta_y = self.target_pos[1] - self.card_pos[1]
 
@@ -23,7 +24,7 @@ class Cardanimation:
         move_x = min(abs(delta_x), self.animation_speed[0]) * (1 if delta_x > 0 else -1)
         move_y = min(abs(delta_y), self.animation_speed[1]) * (1 if delta_y > 0 else -1)
 
-        # Update the card's position
+        # Update the card's position, this is important!!!
         self.card_pos[0] += move_x
         self.card_pos[1] += move_y
         return self.card_pos
@@ -35,8 +36,8 @@ class Cardanimation:
         screen.blit(image_bg, (0, 0))
 
         # Animation loop for cards
-        for index in range(len(card_list)):
-            self.target_pos = target_positions[index]
+        for current_card_index in range(len(card_list)): # It's just the card_back_list
+            self.target_pos = target_positions[current_card_index] # Get the target position for each iteration
             self.card_pos = [450, 0]  # Reset card position for each loop
 
             while True:
@@ -45,20 +46,20 @@ class Cardanimation:
                         pygame.quit()
                         sys.exit()
 
-                # Render background (keep it persistent)
+                # Render background
                 screen.blit(image_bg, (0, 0)) 
-                # Calling the card_animation function from the Cardanimation
+                # Call card_animation to do some math to animate the card, VERY IMPORTANT!!!
                 card_pos = self.card_animation()
 
                 # Draw all cards in their respective positions
-                for i, drawn_card in enumerate(card_list):
-                    if i < index:
-                        position = target_positions[i]  
-                    else:
+                for card_index, drawn_card in enumerate(card_list):
+                    if card_index < current_card_index: # If the card is before the current card, draw it at the target position (Because it has already been animated)
+                        position = target_positions[card_index] 
+                    else: # Else draw the card at the starting position (450, 0)
                         position = (450, 0)
 
-                    if i == index:
-                        position = tuple(card_pos)  # Animate the current card
+                    if card_index == current_card_index: # If the card is the current card, blit it at the position calculated by card_animation
+                        position = tuple(card_pos)  # Convert the list to a tuple
                     screen.blit(drawn_card, position)
 
                 # Check if the card has reached its target position

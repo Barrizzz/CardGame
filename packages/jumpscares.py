@@ -20,21 +20,20 @@ class Jumpscares:
         self.current_sound_name = None
 
     def display_jumpscare(self, screen):
-        index1 = random.randint(0, len(self.jumpscare_list) - 1)
-        index2 = random.randint(0, len(self.jumpscare_sounds) - 1)
-        if self.current_jumpscare is None:
-            self.current_jumpscare = self.jumpscares[index1]
-            self.current_sound = self.sounds[index2]
-            self.current_sound_name = self.jumpscare_sounds[index2]
+        index_jumpscare = random.randint(0, len(self.jumpscare_list) - 1) # Randomize the jumpscare image
+        index_sound = random.randint(0, len(self.jumpscare_sounds) - 1) # Randomize the jumpscare sound
+        
+        if self.current_jumpscare is None: # If there is no current jumpscare, set the current jumpscare and sound (this ensures that the code only runs once)
+            self.current_jumpscare = self.jumpscares[index_jumpscare]
+            self.current_sound = self.sounds[index_sound]
+            self.current_sound_name = self.jumpscare_sounds[index_sound]
             self.current_sound.play()
+
             if self.current_sound_name == 'ah_hell_nah.mp3':
                 self.current_sound.set_volume(self.volume + 1)  # Make the volume bigger for this specific sound since it is quiet
             else:
                 self.current_sound.set_volume(self.volume) # For the rest use the volume in the main.py
         return screen.blit(self.current_jumpscare, (0, 0))
-    
-    def display_good_jumpscare(self, screen):
-        pass
 
     def reset_jumpscare(self):
         if self.current_sound:
@@ -44,7 +43,7 @@ class Jumpscares:
         self.current_sound_name = None
 
     def get_death_screen(self):
-        index = random.randint(0, len(self.jumpscare_list) - 1)
+        index = random.randint(0, len(self.jumpscare_list) - 1) # Randomize the death screen
         death_screen = self.jumpscares[index]
         return death_screen
     

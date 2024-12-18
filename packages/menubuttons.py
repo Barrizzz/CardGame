@@ -25,7 +25,7 @@ class Buttons:
 
         # Draw the shadow rectangle and then the text
         pygame.draw.rect(surface, shadow_color, shadow_rect, border_radius=10) # Draw the shadow rectangle with a certain border radius
-        surface.blit(text_surface, self.text_rect.topleft) # Blit the text surface to the screen
+        surface.blit(text_surface, self.text_rect) # Blit the text surface to the screen
 
     def mouse_hover(self, mouse_pos):
         # Check if the mouse is hovering over the button
