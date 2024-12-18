@@ -67,6 +67,7 @@ current_round = 0
 
 def game_menu():
     music.play_main_music()
+    current_round = 0 # Resets the current_round when it is in the game menu (when the main game is done)
 
     while True:
         mouse_pos = pygame.mouse.get_pos()  # Update the mouse position
