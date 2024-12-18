@@ -55,8 +55,11 @@ In the beggining of this project, I am still a newbie, and I believed that I hav
 
 # Screenshots of the game
 ![image alt](https://github.com/Barrizzz/CardGame/blob/8d3d44c5bb7ef39119bb3824f9b7e381c81c0dce/screenshots/Screenshot1.png)
+
 ![image alt](https://github.com/Barrizzz/CardGame/blob/8d3d44c5bb7ef39119bb3824f9b7e381c81c0dce/screenshots/Screenshot2.png)
+
 ![image alt](https://github.com/Barrizzz/CardGame/blob/8d3d44c5bb7ef39119bb3824f9b7e381c81c0dce/screenshots/Screenshot3.png)
+
 ![image alt](https://github.com/Barrizzz/CardGame/blob/8d3d44c5bb7ef39119bb3824f9b7e381c81c0dce/screenshots/Screenshot4.png)
 
 # Credits and references
