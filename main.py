@@ -48,7 +48,7 @@ start_button = Buttons(500, 320, "Start Game", font)
 quit_button = Buttons(500, 420, "Quit", font)
 
 '''Configurations'''
-main_time = 27 # Main countdown time in seconds
+main_time = 60 # Main countdown time in seconds
 main_countdown_time = main_time # This is to ensure that the initial countdown is 60 seconds
 
 # Configure the main volume
@@ -94,9 +94,6 @@ def start_main_game():
     # Updates the current_round
     current_round += 1
 
-    # For the countdown timer
-    start_ticks = pygame.time.get_ticks()
-
     # Start Animations
     animation = Cardanimation()
     animation.start_animation(screen, card_back_list, target_positions, image_bg)
@@ -119,11 +116,16 @@ def start_main_game():
     flipped_card_indexes = []  # Track indexes of flipped cards, which is going to be the same as the indexes of random_card_list
     turn_card_back = False  # Flag to indicate whether to turn back the cards after a match
 
+    # Bonus time and time penalty system
     track_success_attempts = 0 # Track the successive success attempts
     track_fail_attempts = 0 # Track the successive fail attempts
     
     # This is if the success attempt is three in a row, this is for checking if the success attempt reaches three in a row again
     no_more_failures_attempts = False
+
+    difficulty_level_1 = [3, 3, 3] # This is the first difficulty level, 3 and 3 means the amount of success attempts so that the bonus time is added, the last 3 is for the failed attempts
+    difficulty_level_2 = [4, 2, 2] # This is the second difficulty level, 4 and 2 means the amount of success attempts so that the bonus time is added, the last 2 is for the failed attempts
+    difficulty_level_3 = [6, 10, 1] # This is the third difficulty level, 6 means the amount of success attempts so that the bonus time is added, why 10 because it is impossible for the user to have that much more success attempts, and 1 is for the failed attempts
 
     # Jumpscares
     jumpscare = Jumpscares(volume)
@@ -138,10 +140,20 @@ def start_main_game():
     pulse_size = 60  # Initialize pulse size
     pulse_size_direction = 1  # Initialize pulse size direction
 
+    # Get the start_ticks right before the game loop starts
+    start_ticks = pygame.time.get_ticks()
+
     while True:
         card_rects = show_card.get_card_rect()  # Get the card rects
         mouse_pos = pygame.mouse.get_pos()  # Update mouse position
-        
+
+        if current_round <= 10:
+            difficulty_level = difficulty_level_1
+        elif 10 < current_round <= 30:
+            difficulty_level = difficulty_level_2
+        elif current_round > 30:
+            difficulty_level = difficulty_level_3
+
         '''Event handling'''
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -178,7 +190,7 @@ def start_main_game():
             turn_card_back = False
 
         '''Very funny jumpscare mechanism'''
-        if track_fail_attempts == 3 and not display_jumpscare:
+        if track_fail_attempts == difficulty_level[2] and not display_jumpscare:
             display_jumpscare = True
             
             decrement = rnd.randint(3, 5)  # Set the decrement when the user fails
@@ -235,11 +247,11 @@ def start_main_game():
         screen.blit(timer_text, timer_text_rect)  # Draw the timer text
 
         '''Bonus time and time penalty system'''
-        if track_success_attempts == 3 and not no_more_failures_attempts: # Note: no_more_failures_attempts is initially False
+        if track_success_attempts == difficulty_level[0] and not no_more_failures_attempts: # Note: no_more_failures_attempts is initially False
             main_countdown_time += rnd.randint(4, 7) # Add bonus time between (4-7), for 3 successive success attempts
             track_success_attempts = 0
             no_more_failures_attempts = True # Set the flag to True, so that it can check if 3 more sucsessful attempts are made
-        elif track_success_attempts == 3 and no_more_failures_attempts:
+        elif track_success_attempts == difficulty_level[1] and no_more_failures_attempts:
             main_countdown_time += rnd.randint(10, 12) # Add bonus time between (10-12), for 6 successive success attempts
             track_success_attempts = 0
             no_more_failures_attempts = False # Resets the flag
@@ -253,10 +265,7 @@ def start_main_game():
             music.countdown_sounds(10)
         elif seconds_left <= 5 and seconds_left > 0:
             music.countdown_sounds(5)
-        elif seconds_left == 0:
-            music.stop_all_music()
-            music.stop_all_coundown_music()
-
+            
         '''More about jumpscare mechanism'''
         if jumpscareType2:
             jumpscare.display_jumpscare(screen)
@@ -306,6 +315,10 @@ def start_main_game():
             lose_text = font_timer.render("You Lose!", True, (255, 0, 0))
             lose_text_rect = lose_text.get_rect(center=(500, 70))
             screen.blit(lose_text, lose_text_rect)
+
+            # Stops all the music including the countdown music
+            music.stop_all_music()
+            music.stop_all_coundown_music()
 
             # If the current game tick is bigger than the jumpscare_time which is 5 seconds
             if pygame.time.get_ticks() >= jumpscare_time:
