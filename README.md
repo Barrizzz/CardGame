@@ -33,12 +33,21 @@ In the beggining of this project, I am still a newbie, and I believed that I hav
 # Dependencies
 - Python 3
 - Pygame
+- PyInstaller
 
 # Installation Steps
 1. Install Python 3 from the official website: https://www.python.org/
 2. Install Pygame by using pip, run this command:
    ```
    pip install pygame
+   ```
+3. Install PyInstaller by using pip, run this command:
+   ```
+   pip install pyinstaller
+   ```
+4. Then to create the EXE file I run this command:
+   ```
+   python -m PyInstaller main.py --onefile --windowed
    ```
 
 # Instructions to Run the Code
