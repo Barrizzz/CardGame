@@ -10,7 +10,7 @@ class Cardfaces:
         self.card_list_blit = card_list_blit
         self.target_positions = target_positions
         self.card_rects = []
-        self.flipped_cards = [False] * len(card_list)  # Track flipped cards
+        self.flipped_cards = [False] * len(card_list)  # Track flipped cards by making a list of booleans according to the length of card_list
 
     def get_card_rect(self):
         # Clear the card_rects list so that it won't just keep on adding, creating an index error

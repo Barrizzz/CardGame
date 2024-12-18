@@ -13,7 +13,6 @@ class Music:
         self.thick_of_it = pygame.mixer.Sound("sounds/ThickOfIt_Jazz.mp3")
 
         self.main_music_list = [self.main_music, self.let_it_snow, self.thick_of_it]
-        self.main_music = None
 
         self.weird_music = pygame.mixer.Sound("sounds/weird_song.mp3")
 
@@ -21,9 +20,9 @@ class Music:
         self.countdown_20sec = pygame.mixer.Sound("sounds/20_second_countdwn.mp3")
         self.countdown_10sec = pygame.mixer.Sound("sounds/10_second_countdwn.mp3")
         self.countdown_5sec = pygame.mixer.Sound("sounds/5_second_countdwn.mp3")
-
         self.countdown_music = [self.countdown_25sec, self.countdown_20sec, self.countdown_10sec, self.countdown_5sec]
 
+        self.main_music = None
         self.current_countdown_sound = None
     
     def play_main_music(self):

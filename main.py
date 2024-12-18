@@ -14,7 +14,7 @@ pygame.mixer.init()
 screen = pygame.display.set_mode((1000, 600))
 pygame.display.set_caption("Countdown Timer")
 clock = pygame.time.Clock()
-FPS = 60
+FPS = 120
 
 # Background Image
 image_bg = pygame.image.load("sprites/background.jpg")
@@ -37,16 +37,15 @@ target_positions = [
 
 # Fonts
 title_font = pygame.font.Font("fonts/forward.ttf", 72)
-font = pygame.font.Font("fonts/eurostile.ttf", 50)
-font2 = pygame.font.Font("fonts/eurostile.ttf", 60)
+font = pygame.font.Font("fonts/eurostile.ttf", 60)
 font_timer = pygame.font.Font("fonts/eurostile.ttf", 60)
 
 # Title and Buttons
 title_text = Title(500, 150, "MATCH THE CARDS", title_font)
-start_button = Buttons(500, 320, "Start Game", font2)
+start_button = Buttons(500, 320, "Start Game", font)
 quit_button = Buttons(500, 420, "Quit", font)
 
-# Configure the time
+'''Configurations'''
 main_time = 27 # Main countdown time in seconds
 main_countdown_time = main_time # This is to ensure that the initial countdown is 60 seconds
 
@@ -55,6 +54,9 @@ volume = 0.2
 
 # Music
 music = Music(volume)
+
+'''Round tracker'''
+current_round = 0
 
 def game_menu():
     music.play_main_music()
@@ -83,7 +85,13 @@ def game_menu():
         clock.tick(FPS)
     
 def start_main_game():
-    global main_countdown_time, main_time, decrement, current_countdown_sound, main_music
+    global main_countdown_time, main_time, decrement, current_round
+
+    # Updates the current_round
+    current_round += 1
+
+    # For the countdown timer
+    start_ticks = pygame.time.get_ticks()
 
     # Start Animations
     animation = Cardanimation()
@@ -102,8 +110,7 @@ def start_main_game():
     #print(random_card_list)
     #print(random_card_list_blit)
     animation.memorize_cards(screen, image_bg, font_timer, target_positions, random_card_list_blit)
-
-    start_ticks = pygame.time.get_ticks()
+    
     # Accessing the class for opening the card faces
     open_card = Cardfaces(card_back_deck, card_list, random_card_list_blit, target_positions)
 
@@ -133,6 +140,7 @@ def start_main_game():
         card_rects = open_card.get_card_rect()  # Get the card rects
         mouse_pos = pygame.mouse.get_pos()  # Update mouse position
         
+        '''Event handling'''
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -144,16 +152,18 @@ def start_main_game():
                         open_card.set_flipped_cards(i)
                         flipped_card_indexes.append(i)
 
-                        if len(flipped_card_indexes) == 2:
+                        if len(flipped_card_indexes) == 2: # If the user has flipped two cards
                             index1, index2 = flipped_card_indexes
                             if random.random_card_list[index1] == random.random_card_list[index2]: # As we can see we use random_card_list's index for matching
                                 flipped_card_indexes.clear()  # Reset the list for the next pair
                                 waiting_time = pygame.time.get_ticks() + 1000  # Set the time to wait before starting the game again
+                                
                                 track_success_attempts += 1
                                 track_fail_attempts = 0
                             else:
                                 turn_card_back = True
                                 turning_time = pygame.time.get_ticks() + 700 # Set the time to turn back cards
+                                
                                 track_fail_attempts += 1
                                 track_success_attempts = 0
                                 no_more_failures_attempts = False
@@ -198,23 +208,27 @@ def start_main_game():
 
         '''This is all about time management and the countdown timer'''
         # Calculate remaining time
-        seconds_left = main_countdown_time - (pygame.time.get_ticks() - start_ticks) // 1000
-        if seconds_left < 0: seconds_left = 0
+        seconds_left = main_countdown_time - (pygame.time.get_ticks() - start_ticks) // 1000 # Divided by 100 because pygame ticks is in miliseconds
+        if seconds_left < 0: seconds_left = 0 # Ensure the time does not go below zero
 
         # Render the countdown timer at the middle top with pulsing effect for the last 10 seconds
         if seconds_left <= 10: # If the time is less than 10 seconds
-            if seconds_left <= 5: # Condition for the last 5 seconds
+            if 3 < seconds_left <= 5: 
                 pulse_size += pulse_size_direction * 2  # By multiplying by two, it means the time it takes for the font to get big is faster
+            elif seconds_left <= 3: 
+                pulse_size += pulse_size_direction * 4  # By multiplying by three, it means the time it takes for the font to get big is faster than before
             else:
                 pulse_size += pulse_size_direction # For each iteration the pulse size (basically the font size) will be added by 1 or subtracted by 1
 
-            if pulse_size <= 60 or pulse_size >= 100: # If the pulse size reaches 100 or more, it will be subtraction else addition
-                pulse_size_direction *= -1
+            # If the pulse size reaches 100 or more, it will be subtraction else addition
+            if pulse_size <= 60 or pulse_size >= 100: 
+                pulse_size_direction *= -1 # Changing the direction of the pulse size by multiplying with -1, if it then reaches 60 or less, it will change the direction (since -1 * -1 = 1)
 
             font_timer_pulse = pygame.font.Font("fonts/eurostile.ttf", pulse_size)
             timer_text = font_timer_pulse.render(str(seconds_left), True, (255, 0, 0))
         else:
             timer_text = font_timer.render(str(seconds_left), True, (255, 255, 255))
+        
         timer_text_rect = timer_text.get_rect(center=(500, 70))  # get the rect of the text and centers it to (500, 70)
         screen.blit(timer_text, timer_text_rect)  # Draw the timer text
 
@@ -304,7 +318,7 @@ def start_main_game():
                 game_menu() # Go back to main menu
 
         pygame.display.flip()  # Update the display
-        clock.tick(FPS + 80) # make the fps bigger
+        clock.tick(FPS) # make the fps bigger
 
 # Start the game menu
 game_menu()
