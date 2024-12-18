@@ -33,8 +33,8 @@ class Buttons:
             return True
         return False
     
-    # Mouse hover checker and mouse actions
-    def mouse_hover_checker(self, button, mouse_pos, screen):
+    # Mouse hover effect
+    def mouse_hover_effect(self, button, mouse_pos, screen):
         if button.mouse_hover(mouse_pos):
             button.render_text(screen, (173, 7, 255))  # Change color to purple when hovered
         else:

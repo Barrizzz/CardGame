@@ -13,6 +13,8 @@ pygame.mixer.init()
 # Setting up the display
 screen = pygame.display.set_mode((1000, 600))
 pygame.display.set_caption("Countdown Timer")
+
+# Clock and FPS
 clock = pygame.time.Clock()
 FPS = 120
 
@@ -24,8 +26,8 @@ image_bg = pygame.transform.scale(image_bg, (1000, 600))
 card_back_deck = pygame.image.load("sprites/card_back_cyan.png")
 card_back_deck = pygame.transform.scale(card_back_deck, (100, 150))
 
-# Create a list of card images
-card_list = [pygame.transform.scale(card_back_deck, (100, 150)) for _ in range(12)]
+# Create a list of card back images
+card_back_list = [pygame.transform.scale(card_back_deck, (100, 150)) for _ in range(12)]
 
 # Target positions for the cards
 divisions = 1000 / 6
@@ -62,27 +64,29 @@ def game_menu():
     music.play_main_music()
 
     while True:
-        mouse_pos = pygame.mouse.get_pos()  # Update mouse position
+        mouse_pos = pygame.mouse.get_pos()  # Update the mouse position
 
+        # Event handling
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT: # If the user clicks the close button
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if start_button.mouse_hover(mouse_pos):             
+            if event.type == pygame.MOUSEBUTTONDOWN: # If the user clicks the mouse
+                if start_button.mouse_hover(mouse_pos): # Checks the postion of the mouse, if it's on the start_button, start the main game             
                     start_main_game()
-                elif quit_button.mouse_hover(mouse_pos):
+                elif quit_button.mouse_hover(mouse_pos): # Checks the postion of the mouse, if it's on the quit_button, quit the game
                     pygame.quit()
                     sys.exit()
 
-        screen.blit(image_bg, (0, 0))
-        title_text.render_title(screen)
-       
-        start_button.mouse_hover_checker(start_button, mouse_pos, screen)
-        quit_button.mouse_hover_checker(quit_button, mouse_pos, screen)
+        screen.blit(image_bg, (0, 0)) # Blit the image background
+        title_text.render_title(screen) # Render the title
 
-        pygame.display.flip()
-        clock.tick(FPS)
+        # Checks mouse positions for hover effect
+        start_button.mouse_hover_effect(start_button, mouse_pos, screen)
+        quit_button.mouse_hover_effect(quit_button, mouse_pos, screen)
+       
+        pygame.display.flip() # Update the display
+        clock.tick(FPS) # Control the frame rate
     
 def start_main_game():
     global main_countdown_time, main_time, decrement, current_round
@@ -95,24 +99,22 @@ def start_main_game():
 
     # Start Animations
     animation = Cardanimation()
-    animation.start_animation(screen, card_list, target_positions, image_bg)
+    animation.start_animation(screen, card_back_list, target_positions, image_bg)
 
-    # Randomize the cards
-    random_card_list = []
-    random_card_list_blit = []
-    random = Cardrandomizer(random_card_list, random_card_list_blit)
+    # To randomize the cards
+    random = Cardrandomizer()
 
     # Randomize cards, and show cards
     random.create_random_cards()
-    random_card_list = random.random_card_list
-    random_card_list_blit = random.random_card_list_blit
+    random_card_list = random.get_random_card_list() # This list contains the name of the cards that will be displayed
+    random_card_list_blit = random.get_random_card_list_blit() # This list contains the cards surfaces that will be blitted
 
     #print(random_card_list)
     #print(random_card_list_blit)
     animation.memorize_cards(screen, image_bg, font_timer, target_positions, random_card_list_blit)
     
     # Accessing the class for opening the card faces
-    open_card = Cardfaces(card_back_deck, card_list, random_card_list_blit, target_positions)
+    show_card = Cardfaces(card_back_deck, card_back_list, random_card_list_blit, target_positions)
 
     flipped_card_indexes = []  # Track indexes of flipped cards, which is going to be the same as the indexes of random_card_list
     turn_card_back = False  # Flag to indicate whether to turn back the cards after a match
@@ -120,7 +122,7 @@ def start_main_game():
     track_success_attempts = 0 # Track the successive success attempts
     track_fail_attempts = 0 # Track the successive fail attempts
     
-    # This is if the success attempt is three in a row, this is for checking if the success attempt reaches five in a row
+    # This is if the success attempt is three in a row, this is for checking if the success attempt reaches three in a row again
     no_more_failures_attempts = False
 
     # Jumpscares
@@ -137,7 +139,7 @@ def start_main_game():
     pulse_size_direction = 1  # Initialize pulse size direction
 
     while True:
-        card_rects = open_card.get_card_rect()  # Get the card rects
+        card_rects = show_card.get_card_rect()  # Get the card rects
         mouse_pos = pygame.mouse.get_pos()  # Update mouse position
         
         '''Event handling'''
@@ -148,13 +150,13 @@ def start_main_game():
 
             elif event.type == pygame.MOUSEBUTTONDOWN and not turn_card_back and not display_jumpscare:
                 for i, rect in enumerate(card_rects):
-                    if rect.collidepoint(mouse_pos) and not open_card.flipped_cards[i]:
-                        open_card.set_flipped_cards(i)
+                    if rect.collidepoint(mouse_pos) and not show_card.flipped_cards[i]:
+                        show_card.set_flipped_cards(i)
                         flipped_card_indexes.append(i)
 
                         if len(flipped_card_indexes) == 2: # If the user has flipped two cards
                             index1, index2 = flipped_card_indexes
-                            if random.random_card_list[index1] == random.random_card_list[index2]: # As we can see we use random_card_list's index for matching
+                            if random_card_list[index1] == random_card_list[index2]: # As we can see we use random_card_list's index for matching
                                 flipped_card_indexes.clear()  # Reset the list for the next pair
                                 waiting_time = pygame.time.get_ticks() + 1000  # Set the time to wait before starting the game again
                                 
@@ -166,12 +168,12 @@ def start_main_game():
                                 
                                 track_fail_attempts += 1
                                 track_success_attempts = 0
-                                no_more_failures_attempts = False
+                                no_more_failures_attempts = False # Set to false since the user failed
 
         '''Turn back non-matching cards after a delay'''
         if turn_card_back and pygame.time.get_ticks() >= turning_time:
-            open_card.set_flipped_cards(flipped_card_indexes[0], False)
-            open_card.set_flipped_cards(flipped_card_indexes[1], False)
+            show_card.set_flipped_cards(flipped_card_indexes[0], False)
+            show_card.set_flipped_cards(flipped_card_indexes[1], False)
             flipped_card_indexes.clear()
             turn_card_back = False
 
@@ -204,7 +206,7 @@ def start_main_game():
 
         # Render background and cards (This creates the flickering jumpscare effect, since the card is being rendered after the jumpscare), fun fact it was initially a bug but then I decided to use it :)
         screen.blit(image_bg, (0, 0))
-        open_card.render_cards()
+        show_card.render_cards()
 
         '''This is all about time management and the countdown timer'''
         # Calculate remaining time
@@ -233,14 +235,14 @@ def start_main_game():
         screen.blit(timer_text, timer_text_rect)  # Draw the timer text
 
         '''Bonus time and time penalty system'''
-        if track_success_attempts == 3:
+        if track_success_attempts == 3 and not no_more_failures_attempts: # Note: no_more_failures_attempts is initially False
             main_countdown_time += rnd.randint(4, 7) # Add bonus time between (4-7), for 3 successive success attempts
             track_success_attempts = 0
-            no_more_failures_attempts = True
-        elif track_success_attempts == 2 and no_more_failures_attempts:
-            main_countdown_time += rnd.randint(10, 12) # Add bonus time between (10-12), for 5 successive success attempts
+            no_more_failures_attempts = True # Set the flag to True, so that it can check if 3 more sucsessful attempts are made
+        elif track_success_attempts == 3 and no_more_failures_attempts:
+            main_countdown_time += rnd.randint(10, 12) # Add bonus time between (10-12), for 6 successive success attempts
             track_success_attempts = 0
-            no_more_failures_attempts = False
+            no_more_failures_attempts = False # Resets the flag
 
         '''Some logic on the countdown music'''
         if seconds_left <= 25 and seconds_left > 20:
@@ -276,7 +278,7 @@ def start_main_game():
 
         '''This is if the player won'''
         # Start the game again if all the cards are facing up
-        if all(open_card.flipped_cards) and pygame.time.get_ticks() >= waiting_time: # Check if flipped_cards list is all True and the waiting time is over, so that the last card can still be shown
+        if all(show_card.flipped_cards) and pygame.time.get_ticks() >= waiting_time: # Check if flipped_cards list is all True and the waiting time is over, so that the last card can still be shown
             main_countdown_time = seconds_left # Calculate the remaining time to be set to the main time for the next round
             decrement = 0 #randint(3, 5) # Set the decrement when the user won, and starting the game again
             main_countdown_time -= decrement  # Ensure the countdown time is decremented when the player wins
@@ -285,7 +287,7 @@ def start_main_game():
 
         '''This is if the timer ran out (Player lose)'''
         # Break the loop when countdown reaches zero
-        if seconds_left == 0 and not display_final_jumpscare and not all(open_card.flipped_cards):
+        if seconds_left == 0 and not display_final_jumpscare and not all(show_card.flipped_cards):
             track_fail_attempts = 0 # So that if the user is in a jumpscare phase, it will exit it in the next iteration
             if display_jumpscare: display_jumpscare = False # Same as before, so that the death screen and the flickering jumpscare does not collide
             
@@ -318,7 +320,7 @@ def start_main_game():
                 game_menu() # Go back to main menu
 
         pygame.display.flip()  # Update the display
-        clock.tick(FPS) # make the fps bigger
+        clock.tick(FPS)  # Control the frame rate
 
 # Start the game menu
 game_menu()
