@@ -38,15 +38,14 @@ target_positions = [
 ]
 
 # Fonts
-title_font = pygame.font.Font("fonts/forward.ttf", 70)
-font = pygame.font.Font("fonts/eurostile.ttf", 40)
+title_font = pygame.font.Font("fonts/forward.ttf", 75)
+font = pygame.font.Font("fonts/eurostile.ttf", 55)
 font_timer = pygame.font.Font("fonts/eurostile.ttf", 60)
 
 # Title and Buttons
 title_text = Title(500, 150, "MATCH THE CARDS", title_font)
-start_button = Buttons(500, 300, "Start Game", font)
-options_button = Buttons(500, 370, "Options", font)
-quit_button = Buttons(500, 440, "Quit", font)
+start_button = Buttons(500, 320, "Start Game", font)
+quit_button = Buttons(500, 420, "Quit", font)
 
 main_time = 60 # Main countdown time in seconds
 main_countdown_time = main_time # This is to ensure that the initial countdown is 60 seconds
@@ -78,7 +77,10 @@ def game_menu():
     # Play the main music
     main_music = rnd.choice(main_music_list)
     main_music.play(loops = -1)
-    main_music.set_volume(volume + 0.2)
+    if main_music == thick_of_it:
+        main_music.set_volume(volume + 0.4)
+    else:
+        main_music.set_volume(volume + 0.2)
 
     while True:
         mouse_pos = pygame.mouse.get_pos()  # Update mouse position
@@ -90,8 +92,6 @@ def game_menu():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if start_button.mouse_hover(mouse_pos):             
                     start_main_game()
-                elif options_button.mouse_hover(mouse_pos):
-                    options()
                 elif quit_button.mouse_hover(mouse_pos):
                     pygame.quit()
                     sys.exit()
@@ -100,21 +100,7 @@ def game_menu():
         title_text.render_title(screen)
        
         start_button.mouse_hover_checker(start_button, mouse_pos, screen)
-        options_button.mouse_hover_checker(options_button, mouse_pos, screen)
         quit_button.mouse_hover_checker(quit_button, mouse_pos, screen)
-
-        pygame.display.flip()
-        clock.tick(FPS)
-
-def options():
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-
-        screen.fill((0, 0, 0))
-        screen.blit(image_bg, (0, 0))  # Draw the background
 
         pygame.display.flip()
         clock.tick(FPS)
