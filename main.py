@@ -66,6 +66,8 @@ music = Music(volume)
 current_round = 0
 
 def game_menu():
+    global current_round
+
     music.play_main_music()
     current_round = 0 # Resets the current_round when it is in the game menu (when the main game is done)
 
