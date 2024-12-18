@@ -12,11 +12,15 @@ pygame.mixer.init()
 
 # Setting up the display
 screen = pygame.display.set_mode((1000, 600))
-pygame.display.set_caption("Countdown Timer")
 
 # Clock and FPS
 clock = pygame.time.Clock()
 FPS = 120
+
+# Pygame icon image, and caption
+icon = pygame.image.load("sprites/cardface/bar_card.png")
+pygame.display.set_icon(icon)
+pygame.display.set_caption("Match The Cards")
 
 # Background Image
 image_bg = pygame.image.load("sprites/background.jpg")
