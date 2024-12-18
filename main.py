@@ -6,6 +6,7 @@ from packages.cardanimation import Cardanimation
 from packages.card_randomizer import Cardrandomizer
 from packages.showing_cards import Cardfaces
 from packages.jumpscares import Jumpscares
+from packages.music import Music
 pygame.init()
 pygame.mixer.init()
 
@@ -18,9 +19,6 @@ FPS = 60
 # Background Image
 image_bg = pygame.image.load("sprites/background.jpg")
 image_bg = pygame.transform.scale(image_bg, (1000, 600))
-
-# Main volume
-volume = 0.1
 
 # Card Back Image
 card_back_deck = pygame.image.load("sprites/card_back_cyan.png")
@@ -38,49 +36,28 @@ target_positions = [
 ]
 
 # Fonts
-title_font = pygame.font.Font("fonts/forward.ttf", 75)
-font = pygame.font.Font("fonts/eurostile.ttf", 55)
+title_font = pygame.font.Font("fonts/forward.ttf", 72)
+font = pygame.font.Font("fonts/eurostile.ttf", 50)
+font2 = pygame.font.Font("fonts/eurostile.ttf", 60)
 font_timer = pygame.font.Font("fonts/eurostile.ttf", 60)
 
 # Title and Buttons
 title_text = Title(500, 150, "MATCH THE CARDS", title_font)
-start_button = Buttons(500, 320, "Start Game", font)
+start_button = Buttons(500, 320, "Start Game", font2)
 quit_button = Buttons(500, 420, "Quit", font)
 
-main_time = 60 # Main countdown time in seconds
+# Configure the time
+main_time = 27 # Main countdown time in seconds
 main_countdown_time = main_time # This is to ensure that the initial countdown is 60 seconds
 
-# This is for sounds
-main_music = pygame.mixer.Sound("sounds/happy_quiz.mp3")
-let_it_snow = pygame.mixer.Sound("sounds/let_it_snow.mp3")
-thick_of_it = pygame.mixer.Sound("sounds/ThickOfIt_Jazz.mp3")
+# Configure the main volume
+volume = 0.2
 
-main_music_list = [main_music, let_it_snow, thick_of_it]
-main_music = None
-
-weird_music = pygame.mixer.Sound("sounds/weird_song.mp3")
-
-countdown_25sec = pygame.mixer.Sound("sounds/25_second_countdwn.mp3")
-countdown_20sec = pygame.mixer.Sound("sounds/20_second_countdwn.mp3")
-countdown_10sec = pygame.mixer.Sound("sounds/10_second_countdwn.mp3")
-countdown_5sec = pygame.mixer.Sound("sounds/5_second_countdwn.mp3")
-
-current_countdown_sound = None
-
-jumpscare_sound = pygame.mixer.Sound("sounds/ascending_jumpscare.mp3")
-jumpscare_sound2 = pygame.mixer.Sound("sounds/ah_hell_nah.mp3")
-plankton_funny = pygame.mixer.Sound("sounds/plankton_funny.mp3")
+# Music
+music = Music(volume)
 
 def game_menu():
-    global main_music
-
-    # Play the main music
-    main_music = rnd.choice(main_music_list)
-    main_music.play(loops = -1)
-    if main_music == thick_of_it:
-        main_music.set_volume(volume + 0.4)
-    else:
-        main_music.set_volume(volume + 0.2)
+    music.play_main_music()
 
     while True:
         mouse_pos = pygame.mouse.get_pos()  # Update mouse position
@@ -191,14 +168,15 @@ def start_main_game():
         '''Very funny jumpscare mechanism'''
         if track_fail_attempts == 3 and not display_jumpscare:
             display_jumpscare = True
+            
             decrement = rnd.randint(3, 5)  # Set the decrement when the user fails
             main_countdown_time -= decrement
+            
             jumpscare_time = pygame.time.get_ticks() + 2000  # Set jumpscare display duration
 
         if display_jumpscare:
             # Stop all the background music
-            main_music.stop()
-            weird_music.stop()
+            music.stop_all_music()
 
             # Finding the jumpscare type according to the music played
             if jumpscare.current_sound_name != 'ah_hell_nah.mp3': # This is assumed as jumpscareType1
@@ -212,8 +190,7 @@ def start_main_game():
                 jumpscare.reset_jumpscare()
                 track_fail_attempts = 0
                 track_success_attempts = 0
-                weird_music.play(loops = -1)
-                weird_music.set_volume(volume + 0.3)
+                music.play_weird_music()
 
         # Render background and cards (This creates the flickering jumpscare effect, since the card is being rendered after the jumpscare), fun fact it was initially a bug but then I decided to use it :)
         screen.blit(image_bg, (0, 0))
@@ -253,44 +230,16 @@ def start_main_game():
 
         '''Some logic on the countdown music'''
         if seconds_left <= 25 and seconds_left > 20:
-            main_music.stop()
-            weird_music.stop()
-            if current_countdown_sound != countdown_25sec:
-                if current_countdown_sound:
-                    current_countdown_sound.stop()
-                countdown_25sec.play(loops = -1)
-                countdown_25sec.set_volume(volume + 0.3)
-                current_countdown_sound = countdown_25sec
+            music.countdown_sounds(25)
         elif seconds_left <= 20 and seconds_left > 10:
-            main_music.stop()
-            weird_music.stop()
-            if current_countdown_sound != countdown_20sec:
-                if current_countdown_sound:
-                    current_countdown_sound.stop()
-                countdown_20sec.play(loops = -1)
-                countdown_20sec.set_volume(volume + 0.3)
-                current_countdown_sound = countdown_20sec
+            music.countdown_sounds(20)
         elif seconds_left <= 10 and seconds_left > 5:
-            main_music.stop()
-            weird_music.stop()
-            if current_countdown_sound != countdown_10sec:
-                if current_countdown_sound:
-                    current_countdown_sound.stop()
-                countdown_10sec.play(loops = -1)
-                countdown_10sec.set_volume(volume + 0.3)
-                current_countdown_sound = countdown_10sec
+            music.countdown_sounds(10)
         elif seconds_left <= 5 and seconds_left > 0:
-            main_music.stop()
-            weird_music.stop()
-            if current_countdown_sound != countdown_5sec: # Check if the current countdown is not the same, so that the logic in this if statement on iterates once
-                if current_countdown_sound: # Check if there is a countdown sound playing
-                    current_countdown_sound.stop() # Stop it once
-                countdown_5sec.play(loops = -1)
-                countdown_5sec.set_volume(volume + 0.4)
-                current_countdown_sound = countdown_5sec
+            music.countdown_sounds(5)
         elif seconds_left == 0:
-            if current_countdown_sound:
-                current_countdown_sound.stop()
+            music.stop_all_music()
+            music.stop_all_coundown_music()
 
         '''More about jumpscare mechanism'''
         if jumpscareType2:
@@ -308,8 +257,7 @@ def start_main_game():
                 jumpscare.reset_jumpscare()
                 track_fail_attempts = 0
                 track_success_attempts = 0
-                weird_music.play(loops = -1)
-                weird_music.set_volume(volume + 0.3)
+                music.play_weird_music()
                 fadeout_alpha = 255  # Reset the fadeout alpha when jumpscare is done
 
         '''This is if the player won'''
@@ -327,32 +275,32 @@ def start_main_game():
             track_fail_attempts = 0 # So that if the user is in a jumpscare phase, it will exit it in the next iteration
             if display_jumpscare: display_jumpscare = False # Same as before, so that the death screen and the flickering jumpscare does not collide
             
-            jumpscare.stop_jumpscare_sounds()
             display_final_jumpscare = True
             jumpscare_time = pygame.time.get_ticks() + 5000
             
+            # To ensure that the death screen is only taken one time
             if death_screen is None:
                 death_screen = jumpscare.get_death_screen()  # Store the death screen image
-                plankton_funny.play()
-            
-            # Stop all the background music
-            main_music.stop() 
-            weird_music.stop()
+                jumpscare.stop_jumpscare_sounds()  # Stop all the jumpscare sounds
+                jumpscare.play_death_screen_sound()  # Play the death screen sound
 
         if display_final_jumpscare:
             # Blit the image and text
-            screen.blit(death_screen, (0, 0))  
+            screen.blit(death_screen, (0, 0))  # Blit the death_screen image
             lose_text = font_timer.render("You Lose!", True, (255, 0, 0))
             lose_text_rect = lose_text.get_rect(center=(500, 70))
             screen.blit(lose_text, lose_text_rect)
 
             # If the current game tick is bigger than the jumpscare_time which is 5 seconds
             if pygame.time.get_ticks() >= jumpscare_time:
-                display_final_jumpscare = False # Stop the parent if statement
                 jumpscare.reset_jumpscare() # Stop the death screen
+
                 main_countdown_time = main_time # Set the countdown time back to the main time, because we are going to go back to the main menu
                 decrement = 0 # Set the decrement back to zero
-                plankton_funny.stop() # Stop the sound
+
+                jumpscare.stop_jumpscare_sounds() # Stop the sound
+
+                display_final_jumpscare = False # Stop the parent if statement
                 game_menu() # Go back to main menu
 
         pygame.display.flip()  # Update the display

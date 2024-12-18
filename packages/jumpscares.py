@@ -7,6 +7,9 @@ class Jumpscares:
         self.volume = volume
         self.jumpscare_list = ['jason.png', 'mikel.jpg', 'cardface/tal_card.png', 'cardface/mikel_card.png']
         self.jumpscare_sounds = ['ah_hell_nah.mp3', 'ascending_jumpscare.mp3']
+        
+        self.death_screen_sound = 'plankton_funny.mp3'
+        self.plankton_funny = pygame.mixer.Sound(f"sounds/{self.death_screen_sound}")
 
         self.jumpscares = [pygame.image.load(f"sprites/{img}") for img in self.jumpscare_list]
         self.jumpscares = [pygame.transform.scale(img, (1000, 600)) for img in self.jumpscares]
@@ -44,7 +47,11 @@ class Jumpscares:
         index = random.randint(0, len(self.jumpscare_list) - 1)
         death_screen = self.jumpscares[index]
         return death_screen
+    
+    def play_death_screen_sound(self):
+        self.plankton_funny.play()
 
     def stop_jumpscare_sounds(self):
         for sound in self.sounds:
             sound.stop()
+        self.plankton_funny.stop()
