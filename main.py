@@ -52,8 +52,9 @@ start_button = Buttons(500, 320, "Start Game", font)
 quit_button = Buttons(500, 420, "Quit", font)
 
 '''Configurations'''
-main_time = 60 # Main countdown time in seconds
+main_time = 15 # Main countdown time in seconds
 main_countdown_time = main_time # This is to ensure that the initial countdown is 60 seconds
+minimum_time = (8, 12) # Minimum countdown time
 
 # Configure the main volume
 volume = 0.2
@@ -127,6 +128,7 @@ def start_main_game():
     # This is if the success attempt is three in a row, this is for checking if the success attempt reaches three in a row again
     no_more_failures_attempts = False
 
+    '''The game will access the data of sucessive fail or success attempts using the index in these variables'''
     difficulty_level_1 = [3, 3, 3] # This is the first difficulty level, 3 and 3 means the amount of success attempts so that the bonus time is added, the last 3 is for the failed attempts
     difficulty_level_2 = [4, 2, 2] # This is the second difficulty level, 4 and 2 means the amount of success attempts so that the bonus time is added, the last 2 is for the failed attempts
     difficulty_level_3 = [6, 10, 1] # This is the third difficulty level, 6 means the amount of success attempts so that the bonus time is added, why 10 because it is impossible for the user to have that much more success attempts, and 1 is for the failed attempts
@@ -194,8 +196,8 @@ def start_main_game():
             turn_card_back = False
 
         '''Very funny jumpscare mechanism'''
-        if track_fail_attempts == difficulty_level[2] and not display_jumpscare:
-            display_jumpscare = True
+        if track_fail_attempts == difficulty_level[2] and not display_jumpscare: # If the user fails a certain amount of times in a row and a jumpscare is not displayed
+            display_jumpscare = True # Set the display_jumpscare to True
             
             decrement = rnd.randint(3, 5)  # Set the decrement when the user fails
             main_countdown_time -= decrement
@@ -214,11 +216,14 @@ def start_main_game():
                 jumpscareType2 = True
 
             if pygame.time.get_ticks() >= jumpscare_time:
-                display_jumpscare = False
+                display_jumpscare = False # Stops the parent if statement
+
+                # Resets jumpscare and track attempts
                 jumpscare.reset_jumpscare()
                 track_fail_attempts = 0
                 track_success_attempts = 0
-                music.play_weird_music()
+
+                music.play_weird_music() # Play the weird music
 
         # Render background and cards (This creates the flickering jumpscare effect, since the card is being rendered after the jumpscare), fun fact it was initially a bug but then I decided to use it :)
         screen.blit(image_bg, (0, 0))
@@ -270,32 +275,38 @@ def start_main_game():
         elif seconds_left <= 5 and seconds_left > 0:
             music.countdown_sounds(5)
             
-        '''More about jumpscare mechanism'''
+        '''More about jumpscare mechanism (Jumpscare Type 2 non-flickering)'''
         if jumpscareType2:
             jumpscare.display_jumpscare(screen)
             # Fadeout effect
             if fadeout_alpha > 0:
+                # Create a fadeout surface, and set the alpha value
                 fadeout_surface = pygame.Surface((1000, 600))
                 fadeout_surface.set_alpha(fadeout_alpha)
                 fadeout_surface.fill((0, 0, 0))
+
+                # Blit the fadeout surface
                 screen.blit(fadeout_surface, (0, 0))
+
                 fadeout_alpha -= 5  # Decrease alpha value for each iteration, creating a fadeout effect
             if pygame.time.get_ticks() >= (jumpscare_time - 200): # Make the jumpscare time a little faster
                 display_jumpscare = False
                 jumpscareType2 = False
+
+                # Resets jumpscare and track attempts
                 jumpscare.reset_jumpscare()
                 track_fail_attempts = 0
                 track_success_attempts = 0
+
+                # Play the weird music
                 music.play_weird_music()
-                fadeout_alpha = 255  # Reset the fadeout alpha when jumpscare is done
+                fadeout_alpha = 255  # Resets the fadeout alpha value
 
         '''This is if the player won'''
         # Start the game again if all the cards are facing up
         if all(show_card.flipped_cards) and pygame.time.get_ticks() >= waiting_time: # Check if flipped_cards list is all True and the waiting time is over, so that the last card can still be shown
             main_countdown_time = seconds_left # Calculate the remaining time to be set to the main time for the next round
-            decrement = 0 #randint(3, 5) # Set the decrement when the user won, and starting the game again
-            main_countdown_time -= decrement  # Ensure the countdown time is decremented when the player wins
-            if main_countdown_time <= 10: main_countdown_time = rnd.randint(8, 12)  # Ensure minimum countdown time
+            if main_countdown_time <= 10: main_countdown_time = rnd.randint(minimum_time[0], minimum_time[1])  # Minimum countdown time
             start_main_game()  # Restart the game
 
         '''This is if the timer ran out (Player lose)'''

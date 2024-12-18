@@ -36,8 +36,9 @@ class Jumpscares:
         return screen.blit(self.current_jumpscare, (0, 0))
 
     def reset_jumpscare(self):
-        if self.current_sound:
+        if self.current_sound: # If self.current_sound exists, stop it
             self.current_sound.stop()
+        # Reset the variables
         self.current_jumpscare = None
         self.current_sound = None
         self.current_sound_name = None
