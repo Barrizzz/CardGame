@@ -51,9 +51,8 @@ class Music:
         self.stop_all_music()
         countdown_music = getattr(self, f'countdown_{time}sec')
         if self.current_countdown_sound != countdown_music:
-            if self.current_countdown_sound:
-                self.current_countdown_sound.stop()
-                self.current_countdown_sound = None
-            countdown_music.play(loops = -1)
-            countdown_music.set_volume(self.volume + 0.3)
-            self.current_countdown_sound = countdown_music
+                if self.current_countdown_sound:
+                    self.current_countdown_sound.stop()
+                countdown_music.play(loops = -1)
+                countdown_music.set_volume(self.volume + 0.3)
+                self.current_countdown_sound = countdown_music
