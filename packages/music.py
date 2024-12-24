@@ -22,7 +22,6 @@ class Music:
         self.countdown_5sec = pygame.mixer.Sound("sounds/5_second_countdwn.mp3")
         self.countdown_music = [self.countdown_25sec, self.countdown_20sec, self.countdown_10sec, self.countdown_5sec]
 
-        self.main_music = None
         self.current_countdown_sound = None
     
     def play_main_music(self):
