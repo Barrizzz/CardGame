@@ -44,7 +44,7 @@ class Music:
         for music in self.countdown_music:
             music.stop()
 
-    def countdown_sounds(self, time_index):
+    def play_countdown_sounds(self, time_index):
         self.stop_all_music()
         countdown_music = self.countdown_music[time_index]
         if self.current_countdown_sound != countdown_music:
