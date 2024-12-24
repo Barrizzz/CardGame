@@ -40,7 +40,7 @@ class Music:
             music.stop()
         self.weird_music.stop()
     
-    def stop_all_coundown_music(self):
+    def stop_all_countdown_music(self):
         for music in self.countdown_music:
             music.stop()
 

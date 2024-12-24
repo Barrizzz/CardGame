@@ -336,7 +336,7 @@ def start_main_game():
 
             # Stops all the music including the countdown music
             music.stop_all_music()
-            music.stop_all_coundown_music()
+            music.stop_all_countdown_music()
 
             # If the current game tick is bigger than the jumpscare_time which is 5 seconds
             if pygame.time.get_ticks() >= jumpscare_time:
