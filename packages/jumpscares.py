@@ -11,8 +11,7 @@ class Jumpscares:
         self.death_screen_sound = 'plankton_funny.mp3'
         self.plankton_funny = pygame.mixer.Sound(f"sounds/{self.death_screen_sound}")
 
-        self.jumpscares = [pygame.image.load(f"sprites/{img}") for img in self.jumpscare_list]
-        self.jumpscares = [pygame.transform.scale(img, (1000, 600)) for img in self.jumpscares]
+        self.jumpscares = [pygame.transform.scale(pygame.image.load(f"sprites/{img}"), (1000, 600)) for img in self.jumpscare_list]
         self.sounds = [pygame.mixer.Sound(f"sounds/{sound}") for sound in self.jumpscare_sounds]
 
         self.current_jumpscare = None

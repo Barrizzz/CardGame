@@ -270,13 +270,13 @@ def start_main_game():
 
         '''Some logic on the countdown music'''
         if seconds_left <= 25 and seconds_left > 20:
-            music.countdown_sounds(25)
+            music.countdown_sounds(0)
         elif seconds_left <= 20 and seconds_left > 10:
-            music.countdown_sounds(20)
+            music.countdown_sounds(1)
         elif seconds_left <= 10 and seconds_left > 5:
-            music.countdown_sounds(10)
+            music.countdown_sounds(2)
         elif seconds_left <= 5 and seconds_left > 0:
-            music.countdown_sounds(5)
+            music.countdown_sounds(3)
             
         '''More about jumpscare mechanism (Jumpscare Type 2 non-flickering)'''
         if jumpscareType2:
